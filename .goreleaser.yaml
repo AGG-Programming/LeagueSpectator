@@ -2,10 +2,6 @@ version: 2
 
 project_name: agg-league-overlay
 
-before:
-  hooks:
-    - go -C backend mod tidy
-
 builds:
   - dir: backend
     main: ./cmd/league-spectator/main.go
