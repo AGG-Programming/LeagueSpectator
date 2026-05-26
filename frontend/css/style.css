@@ -291,7 +291,7 @@ Score Display
     border: 1px solid rgba(200, 170, 110, 0.5);
     border-top: none;
     border-radius: 0 0 4px 4px;
-    width: 550px;
+    width: 900px;
 }
 
 .game-time {
@@ -370,4 +370,43 @@ Score Display
     width: 15px;
     height: 15px;
     object-fit: contain;
+}
+
+
+.quest-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 175px;
+    height: 100%;
+    padding: 0 10px;
+}
+.blue-quests {
+    justify-content: flex-start;
+}
+.red-quests { 
+    justify-content: flex-end;
+}
+
+.quest-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.25;
+    filter: grayscale(100%);
+    transition: all 0.3s ease;
+}
+
+.quest-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.quest-icon.completed {
+    opacity: 1;
+    filter: grayscale(0%);
+    filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.8));
 }
