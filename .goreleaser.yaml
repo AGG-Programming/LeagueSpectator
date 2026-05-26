@@ -4,11 +4,6 @@ dir: backend
 
 project_name: agg-league-overlay
 
-before:
-  hooks:
-    - cmd: go mod tidy
-      dir: backend
-
 builds:
   - main: ./cmd/league-spectator/main.go
     env:
@@ -20,6 +15,10 @@ builds:
     goarch:
       - arm64
       - amd64
+
+    hooks:
+      pre:
+        - go mod tidy
 
 archives:
   - format: tar.gz
