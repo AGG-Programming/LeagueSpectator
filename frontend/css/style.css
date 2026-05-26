@@ -18,6 +18,10 @@ body, html {
     height: 100%;
 }
 
+/*---------------------------------------------------------------------------------------------
+Standings Box
+----------------------------------------------------------------------------------------------- */
+
 #league-standings-box {
     position: absolute;
     bottom: 4px;
@@ -126,4 +130,244 @@ body, html {
 
 .enemy-team td:first-child {
     padding-left: 1px;
+}
+
+
+/*---------------------------------------------------------------------------------------------
+Score Display
+----------------------------------------------------------------------------------------------- */
+
+#score-display {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 900px;
+}
+
+.main-score-display {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    background: #0a0f17;
+    border: 2px solid #c8aa6e;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    width: 100%;
+}
+
+.team-side {
+    display: flex;
+    align-items: center;
+    width: 420px;
+    height: 100%;
+    padding: 0 16px;
+}
+
+.blue-side { 
+    justify-content: flex-start; 
+}
+.red-side { 
+    justify-content: flex-end;
+}
+
+.series-ticks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.tick {
+    width: 16px;
+    height: 6px;
+    background: #232936;
+    border: 1px solid #a09b8c;
+    border-radius: 1px;
+}
+.tick.active {
+    background: #c8aa6e;
+    border-color: #f0e6d2;
+}
+
+.score-team-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin: 0 10px;
+}
+
+.team-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+}
+.blue-side .team-meta { align-items: flex-start; text-align: left; }
+.red-side .team-meta { align-items: flex-end; text-align: right; }
+
+.team-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #f0e6d2;
+    line-height: 16px;
+}
+.team-record {
+    font-size: 11px;
+    color: #a09b8c;
+    margin-top: 2px;
+}
+
+.team-gold-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 65px;
+    margin-right: 35px;
+}
+.blue-side .team-gold-container { align-items: flex-end; text-align: right; }
+.red-side .team-gold-container { 
+    align-items: flex-start; 
+    text-align: left;
+    margin-right: 0;
+    margin-left: 35px;
+}
+
+.team-gold {
+    font-size: 15px;
+    font-weight: bold;
+    color: #e5c483;
+}
+.gold-lead {
+    font-size: 11px;
+    color: #00eaff;
+    font-weight: bold;
+}
+.gold-lead.hidden { display: none; }
+
+.kill-score {
+    font-size: 26px;
+    font-weight: bold;
+    width: 55px;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+}
+.blue-kills { color: #00eaff; border-left: 1px solid rgba(200, 170, 110, 0.2); }
+.red-kills { color: #ff4655; border-right: 1px solid rgba(200, 170, 110, 0.2); }
+
+.center-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 100%;
+    background: #121924;
+    border-left: 1px solid #c8aa6e;
+    border-right: 1px solid #c8aa6e;
+}
+.league-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #c8aa6e;
+    letter-spacing: 0.5px;
+}
+.league-sub {
+    font-size: 9px;
+    color: #a09b8c;
+}
+
+
+.sub-score-display {
+    display: flex;
+    align-items: center;
+    height: 26px;
+    background: rgba(10, 15, 23, 0.95);
+    border: 1px solid rgba(200, 170, 110, 0.5);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    width: 550px;
+}
+
+.game-time {
+    width: 76px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #f0e6d2;
+    background: #121924;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid rgba(200, 170, 110, 0.5);
+    border-right: 1px solid rgba(200, 170, 110, 0.5);
+    flex-shrink: 0;
+}
+
+.objectives {
+    display: flex;
+    align-items: center;
+    width: 237px;
+    padding: 0 12px;
+}
+.blue-objectives { 
+    justify-content: flex-start; 
+}
+.blue-towers, .blue-grubs {
+    width: 40px;
+}
+.blue-drakes {
+    margin-left: auto;
+    padding-right: 20px;
+}
+
+.red-objectives { 
+    justify-content: flex-start; 
+}
+.red-drakes {
+    padding-left: 20px;
+}
+.red-grubs {
+    width: 40px;
+    margin-left: auto;
+    justify-content: flex-end;
+}
+.red-towers {
+    width: 40px;
+    justify-content: flex-end;
+}
+
+
+.obj-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #f0e6d2;
+}
+.obj-item img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+}
+.obj-count {
+    color: #a09b8c;
+}
+
+.drakes-list {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.drake-icon {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
 }
