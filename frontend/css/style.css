@@ -1,0 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    width: 1920px;
+    height: 1080px;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+#hud-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#league-standings-box {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 300px;
+    height: 250px;
+    background: #0a0f17;
+    border: 2px solid #c8aa6e;
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    padding: 12px;
+    color: #f0e6d2;
+}
+
+.box-header h3 {
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #c8aa6e;
+    border-bottom: 1px solid rgba(200, 170, 110, 0.3);
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+.standings-table th:nth-child(1) { width: 25px; }
+.standings-table th:nth-child(2) { width: 145px; }
+.standings-table th:nth-child(3) { width: 55px; }
+.standings-table th:nth-child(4) { width: 35px; }
+
+.standings-table th {
+    color: #a09b8c;
+    text-transform: uppercase;
+    font-size: 10px;
+    text-align: left;
+    padding-bottom: 6px;
+}
+
+.standings-table td {
+    padding: 5px 0;
+    vertical-align: middle;
+}
+
+.pos-cell {
+    color: #a09b8c;
+}
+
+.team-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.standings-table th:nth-child(3), .wl-cell,
+.standings-table th:nth-child(4), .pts-cell {
+    text-align: right;
+}
+
+.pts-cell {
+    padding-right: 5px;
+    font-weight: 600;
+}
+
+.table-gap td {
+    padding: 8px 0;
+}
+.table-gap div {
+    width: 100%;
+    border-top: 2px dashed rgba(200, 170, 110, 0.25);
+}
+
+.own-team {
+    color: #00eaff;
+    font-weight: bold;
+    background: rgba(0, 234, 255, 0.08);
+}
+
+.own-team td:first-child {
+    padding-left: 1px;
+}
+
+.enemy-team {
+    color: #ff4655;
+    font-weight: bold;
+    background: rgba(255, 70, 85, 0.08);
+}
+
+.enemy-team td:first-child {
+    padding-left: 1px;
+}
