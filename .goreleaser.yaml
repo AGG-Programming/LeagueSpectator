@@ -6,7 +6,8 @@ project_name: agg-league-overlay
 
 before:
   hooks:
-    - go mod tidy
+    - cmd: go mod tidy
+      dir: backend
 
 builds:
   - main: ./cmd/league-spectator/main.go
