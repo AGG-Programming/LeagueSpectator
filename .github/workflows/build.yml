@@ -25,15 +25,6 @@ jobs:
         with:
           go-version: "1.26.2"
 
-      - name: Debug workspace
-        run: |
-          echo "PWD=$(pwd)"
-          ls -la
-          ls -la backend
-          test -f backend/go.mod
-          go version
-          go env GOMOD
-
       - name: Validate GoReleaser config
         uses: goreleaser/goreleaser-action@v7
         with:
