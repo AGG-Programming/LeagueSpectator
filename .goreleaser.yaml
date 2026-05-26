@@ -4,7 +4,7 @@ project_name: agg-league-overlay
 
 before:
   hooks:
-    - cd backend && go mod tidy
+    - go -C backend mod tidy
 
 builds:
   - dir: backend
