@@ -410,3 +410,91 @@ Score Display
     filter: grayscale(0%);
     filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.8));
 }
+
+
+
+
+/*---------------------------------------------------------------------------------------------
+Corner Timer Boxes
+----------------------------------------------------------------------------------------------- */
+
+
+.corner-timer-box {
+    position: absolute;
+    top: 4px;
+    width: 150px;
+    height: 48px;
+    background: #0a0f17;
+    border: 2px solid #c8aa6e;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 10px;
+}
+
+#drake-timer-box {
+    left: 4px;
+    justify-content: flex-start;
+}
+
+#void-timer-box {
+    right: 4px;
+    justify-content: flex-end;
+}
+
+.timer-icon-container {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timer-obj-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.4));
+}
+
+.timer-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.timer-info.text-right {
+    text-align: right;
+}
+
+.spawn-time {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00eaff;
+    line-height: 16px;
+    letter-spacing: 0.5px;
+}
+
+.spawn-time.live {
+    color: #ff4655;
+    animation: pulse 1.5s infinite;
+}
+
+.object-name {
+    font-size: 9px;
+    color: #a09b8c;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
