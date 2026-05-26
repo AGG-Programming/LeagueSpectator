@@ -28,7 +28,7 @@ archives:
       - goos: windows
         formats: [zip]
     files:
-      - ./frontend/**/*
+      - src: ./frontend/*
 
 changelog:
   sort: asc
