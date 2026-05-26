@@ -1,6 +1,8 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"time"
@@ -9,11 +11,17 @@ import (
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
 )
 
+var frontendFiles embed.FS
+
 func main() {
 	leagueClient := league.NewClient()
 	wsHub := websocket.NewHub()
 
 	go wsHub.Run()
+
+	publicFS, _ := fs.Sub(frontendFiles, "frontend")
+
+	http.Handle("/", http.FileServer(http.FS(publicFS)))
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(wsHub, w, r)
