@@ -1,0 +1,98 @@
+{
+  "players": [
+    {
+      "championName": "Aatrox",
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/champion/Aatrox.png",
+      "isDead": false,
+      "level": 0,
+      "position": "TOP",
+      "team": "BLUE",
+      "respawnTimer": 10,
+      "summonerName": "Aatrox",
+      "playerTotalGold": 1000,
+      "items": [
+        {
+          "id": "Aatrox's Greaves",
+          "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/item/Greaves.png",
+          "slot": 1,
+          "consumable": false,
+          "count": 1
+        }
+      ],
+      "runes": {
+        "keystone": {
+          "displayName": "Keystone",
+          "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/Keystone.png"
+        },
+        "secondaryRuneTree": {
+          "displayName": "Secondary Rune Tree",
+          "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/SecondaryRuneTree.png"
+        }
+      },
+      "scores": {
+        "kills": 10,
+        "deaths": 5,
+        "assists": 2,
+        "creepScore": 10,
+        "wardScore": 10
+      }
+    }
+  ],
+  "blueTeam": {
+    "score": 10,
+    "gold": 1000,
+    "turrets": {
+      "destroyed": 1,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/Turret.png"
+    },
+    "grubs": {
+      "killed": 1,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/Grub.png"
+    },
+    "baron": {
+      "isActive": true,
+      "remainingTime": 10,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/champion/Aatrox.png"
+    },
+    "dragon": [
+      {
+        "orderKey": 1,
+        "name": "Cloud",
+        "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/champion/Aatrox.png"
+      }
+    ]
+  },
+  "redTeam": {
+    "score": 10,
+    "gold": 1000,
+    "turrets": {
+      "destroyed": 1,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/Turret.png"
+    },
+    "grubs": {
+      "killed": 1,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/spell/Grub.png"
+    },
+    "baron": {
+      "isActive": true,
+      "remainingTime": 10,
+      "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/champion/Aatrox.png"
+    },
+    "dragon": [
+      {
+        "orderKey": 1,
+        "name": "Cloud",
+        "icon": "http://ddragon.leagueoflegends.com/cdn/12.1.1/img/champion/Aatrox.png"
+      }
+    ]
+  },
+  "grubSpawnTime": 0,
+  "grubsAlive": true,
+  "baronSpawnTime": 0,
+  "baronIsActive": false,
+  "dragonSpawnTime": 0,
+  "dragonIsActive": false,
+  "heroldSpawnTime": 0,
+  "heroldIsActive": false,
+  "gameTime": 0
+}

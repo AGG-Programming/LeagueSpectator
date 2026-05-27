@@ -1,0 +1,15 @@
+{
+  "group": "test",
+  "division": "test",
+  "teams": [
+    {
+      "identifier": 0,
+      "tag": "test",
+      "icon": "test",
+      "wins": 0,
+      "losses": 0,
+      "points": 0,
+      "rank": 0
+    }
+  ]
+}
