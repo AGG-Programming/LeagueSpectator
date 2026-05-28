@@ -56,7 +56,7 @@ type Player struct {
 type Spell struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
-	Extended    string
+	Extended    string `json:"-"`
 }
 
 type Scores struct {
@@ -84,7 +84,7 @@ type Runes struct {
 type Rune struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
-	Extended    string
+	Extended    string `json:"-"`
 }
 
 func (d *DynamicGameData) UnmarshalJSON(data []byte) error {

@@ -75,51 +75,58 @@ func (h *Handler) Handle() {
 }
 
 func (h *Handler) SetIconURLs(dynamicData *models.DynamicGameData, latest string) (*models.DynamicGameData, error) {
-	baseURL := "https://ddragon.leagueoflegends.com/cdn/"
+	baseURL := "http://ddragon.leagueoflegends.com/cdn/"
 	re := regexp.MustCompile(`\d+$`)
 
-	for _, objective := range dynamicData.BlueTeam.Objectives {
-		objective.Icon = "./assets/" + objective.Key + ".png"
+	for i := range dynamicData.BlueTeam.Objectives {
+		dynamicData.BlueTeam.Objectives[i].Icon = "./assets/" + dynamicData.BlueTeam.Objectives[i].Key + ".png"
 	}
-	for _, objective := range dynamicData.RedTeam.Objectives {
-		objective.Icon = "./assets/" + objective.Key + ".png"
+	for i := range dynamicData.RedTeam.Objectives {
+		dynamicData.RedTeam.Objectives[i].Icon = "./assets/" + dynamicData.RedTeam.Objectives[i].Key + ".png"
 	}
 
-	for _, bPlayer := range dynamicData.BlueTeam.Players {
+	for i := range dynamicData.BlueTeam.Players {
+		bPlayer := &dynamicData.BlueTeam.Players[i]
+
 		bPlayer.Icon = baseURL + latest + "/img/champion/" + bPlayer.ChampionName + ".png"
 
-		for _, item := range bPlayer.Items {
-			item.Icon = baseURL + latest + "/img/item/" + item.Id + ".png"
+		for j := range bPlayer.Items {
+			bPlayer.Items[j].Icon = baseURL + latest + "/img/item/" + bPlayer.Items[j].Id + ".png"
 		}
-		for _, spell := range bPlayer.Spells {
-			name := strings.Split(spell.Extended, "_")[2]
-			spell.Icon = baseURL + latest + "/img/spell/" + name + ".png"
+		for j := range bPlayer.Spells {
+			name := strings.Split(bPlayer.Spells[j].Extended, "_")[2]
+			bPlayer.Spells[j].Icon = baseURL + latest + "/img/spell/" + name + ".png"
 		}
 
 		primary := re.FindString(bPlayer.Runes.Primary.Extended)
-		secondary := re.FindString(bPlayer.Runes.Primary.Extended)
+		secondary := re.FindString(bPlayer.Runes.Secondary.Extended)
+		keystone := strings.ReplaceAll(bPlayer.Runes.Keystone.DisplayName, " ", "")
 
-		bPlayer.Runes.Keystone.Icon = baseURL + "img/perk-images/Styles/" + bPlayer.Runes.Primary.DisplayName + "/" + bPlayer.Runes.Keystone.DisplayName + "/" + bPlayer.Runes.Keystone.DisplayName + ".png"
-		bPlayer.Runes.Primary.Icon = baseURL + "img/perk-images/Styles/" + primary + "_" + bPlayer.Runes.Primary.DisplayName + "/" + bPlayer.Runes.Primary.DisplayName + ".png"
-		bPlayer.Runes.Secondary.Icon = baseURL + "img/perk-images/Styles/" + secondary + "_" + bPlayer.Runes.Primary.DisplayName + "/" + bPlayer.Runes.Primary.DisplayName + ".png"
+		bPlayer.Runes.Keystone.Icon = baseURL + "img/perk-images/Styles/" + bPlayer.Runes.Primary.DisplayName + "/" + keystone + "/" + keystone + ".png"
+		bPlayer.Runes.Primary.Icon = baseURL + "img/perk-images/Styles/" + primary + "_" + bPlayer.Runes.Primary.DisplayName + ".png"
+		bPlayer.Runes.Secondary.Icon = baseURL + "img/perk-images/Styles/" + secondary + "_" + bPlayer.Runes.Secondary.DisplayName + ".png"
 	}
-	for _, rPlayer := range dynamicData.RedTeam.Players {
+
+	for i := range dynamicData.RedTeam.Players {
+		rPlayer := &dynamicData.RedTeam.Players[i]
+
 		rPlayer.Icon = baseURL + latest + "/img/champion/" + rPlayer.ChampionName + ".png"
 
-		for _, item := range rPlayer.Items {
-			item.Icon = baseURL + latest + "/img/item/" + item.Id + ".png"
+		for j := range rPlayer.Items {
+			rPlayer.Items[j].Icon = baseURL + latest + "/img/item/" + rPlayer.Items[j].Id + ".png"
 		}
-		for _, spell := range rPlayer.Spells {
-			name := strings.Split(spell.Extended, "_")[2]
-			spell.Icon = baseURL + latest + "/img/spell/" + name + ".png"
+		for j := range rPlayer.Spells {
+			name := strings.Split(rPlayer.Spells[j].Extended, "_")[2]
+			rPlayer.Spells[j].Icon = baseURL + latest + "/img/spell/" + name + ".png"
 		}
 
 		primary := re.FindString(rPlayer.Runes.Primary.Extended)
-		secondary := re.FindString(rPlayer.Runes.Primary.Extended)
+		secondary := re.FindString(rPlayer.Runes.Secondary.Extended)
+		keystone := strings.ReplaceAll(rPlayer.Runes.Keystone.DisplayName, " ", "")
 
-		rPlayer.Runes.Keystone.Icon = baseURL + "img/perk-images/Styles/" + rPlayer.Runes.Primary.DisplayName + "/" + rPlayer.Runes.Keystone.DisplayName + "/" + rPlayer.Runes.Keystone.DisplayName + ".png"
-		rPlayer.Runes.Primary.Icon = baseURL + "img/perk-images/Styles/" + primary + "_" + rPlayer.Runes.Primary.DisplayName + "/" + rPlayer.Runes.Primary.DisplayName + ".png"
-		rPlayer.Runes.Secondary.Icon = baseURL + "img/perk-images/Styles/" + secondary + "_" + rPlayer.Runes.Primary.DisplayName + "/" + rPlayer.Runes.Primary.DisplayName + ".png"
+		rPlayer.Runes.Keystone.Icon = baseURL + "img/perk-images/Styles/" + rPlayer.Runes.Primary.DisplayName + "/" + keystone + "/" + keystone + ".png"
+		rPlayer.Runes.Primary.Icon = baseURL + "img/perk-images/Styles/" + primary + "_" + rPlayer.Runes.Primary.DisplayName + ".png"
+		rPlayer.Runes.Secondary.Icon = baseURL + "img/perk-images/Styles/" + secondary + "_" + rPlayer.Runes.Primary.DisplayName + ".png"
 	}
 
 	return dynamicData, nil
