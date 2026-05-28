@@ -26,7 +26,7 @@ Standings Box
     position: absolute;
     bottom: 4px;
     left: 4px;
-    width: 300px;
+    width: 285px;
     height: 250px;
     background: #001D1D;
     border: 2px solid #7C8C9B;
@@ -88,8 +88,8 @@ Standings Box
 .team-logo {
     width: 20px;
     height: 20px;
-    object-fit: contain;
-    flex-shrink: 0;
+    /*object-fit: contain;
+    flex-shrink: 0;*/
 }
 
 .name-text {
