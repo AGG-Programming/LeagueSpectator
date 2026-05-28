@@ -33,9 +33,15 @@ func TestDynamicGameData_UnmarshalJSON(t *testing.T) {
 							DisplayName: "Electrocute",
 							Icon:        "",
 						},
+						Primary: Rune{
+							DisplayName: "Domination",
+							Icon:        "",
+							Extended:    "perkstyle_displayname_7200",
+						},
 						Secondary: Rune{
 							DisplayName: "Sorcery",
 							Icon:        "",
+							Extended:    "perkstyle_displayname_7202",
 						},
 					},
 					Scores: Scores{
@@ -49,10 +55,12 @@ func TestDynamicGameData_UnmarshalJSON(t *testing.T) {
 						{
 							DisplayName: "Flash",
 							Icon:        "",
+							Extended:    "GeneratedTip_SummonerSpell_SummonerFlash_DisplayName",
 						},
 						{
 							DisplayName: "Ignite",
 							Icon:        "",
+							Extended:    "GeneratedTip_SummonerSpell_SummonerDot_DisplayName",
 						},
 					},
 				},

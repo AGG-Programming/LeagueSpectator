@@ -30,13 +30,12 @@ type Team struct {
 }
 
 type Objective struct {
-	Key           string  `json:"key"`
-	Icon          string  `json:"icon"`
-	Kills         *int    `json:"kills,omitempty"`
-	IsActive      *bool   `json:"isActive,omitempty"`
-	RemainingTime *int    `json:"remainingTime,omitempty"`
-	Name          *string `json:"name,omitempty"`
-	OrderKey      *int    `json:"orderKey,omitempty"`
+	Key           string `json:"key"`
+	Icon          string `json:"icon"`
+	Kills         *int   `json:"kills,omitempty"`
+	IsActive      *bool  `json:"isActive,omitempty"`
+	RemainingTime *int   `json:"remainingTime,omitempty"`
+	OrderKey      *int   `json:"orderKey,omitempty"`
 }
 
 type Player struct {
@@ -57,6 +56,7 @@ type Player struct {
 type Spell struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
+	Extended    string
 }
 
 type Scores struct {
@@ -77,12 +77,14 @@ type Item struct {
 
 type Runes struct {
 	Keystone  Rune `json:"keystone"`
+	Primary   Rune `json:"primary"`
 	Secondary Rune `json:"secondary"`
 }
 
 type Rune struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
+	Extended    string
 }
 
 func (d *DynamicGameData) UnmarshalJSON(data []byte) error {
@@ -105,9 +107,11 @@ func (d *DynamicGameData) UnmarshalJSON(data []byte) error {
 			SummonerSpells struct {
 				SummonerSpellOne struct {
 					DisplayName string `json:"displayName"`
+					Extended    string `json:"rawDisplayName"`
 				} `json:"SummonerSpellOne"`
 				SummonerSpellTwo struct {
 					DisplayName string `json:"displayName"`
+					Extended    string `json:"rawDisplayName"`
 				} `json:"SummonerSpellTwo"`
 			} `json:"summonerSpells"`
 			Items []struct {
@@ -121,8 +125,13 @@ func (d *DynamicGameData) UnmarshalJSON(data []byte) error {
 				Keystone struct {
 					DisplayName string `json:"displayName"`
 				} `json:"keystone"`
+				PrimaryRuneTree struct {
+					DisplayName string `json:"displayName"`
+					Extended    string `json:"rawDisplayName"`
+				} `json:"primaryRuneTree"`
 				SecondaryRuneTree struct {
 					DisplayName string `json:"displayName"`
+					Extended    string `json:"rawDisplayName"`
 				} `json:"secondaryRuneTree"`
 			} `json:"runes"`
 		} `json:"allPlayers"`
@@ -181,17 +190,24 @@ func (d *DynamicGameData) UnmarshalJSON(data []byte) error {
 			Spells: []Spell{
 				{
 					DisplayName: rp.SummonerSpells.SummonerSpellOne.DisplayName,
+					Extended:    rp.SummonerSpells.SummonerSpellOne.Extended,
 				},
 				{
 					DisplayName: rp.SummonerSpells.SummonerSpellTwo.DisplayName,
+					Extended:    rp.SummonerSpells.SummonerSpellTwo.Extended,
 				},
 			},
 			Runes: Runes{
 				Keystone: Rune{
 					DisplayName: rp.Runes.Keystone.DisplayName,
 				},
+				Primary: Rune{
+					DisplayName: rp.Runes.PrimaryRuneTree.DisplayName,
+					Extended:    rp.Runes.PrimaryRuneTree.Extended,
+				},
 				Secondary: Rune{
 					DisplayName: rp.Runes.SecondaryRuneTree.DisplayName,
+					Extended:    rp.Runes.SecondaryRuneTree.Extended,
 				},
 			},
 		}

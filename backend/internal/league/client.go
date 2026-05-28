@@ -2,6 +2,8 @@ package league
 
 import (
 	"crypto/tls"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -23,7 +25,7 @@ func NewClient() *Client {
 			Timeout:   2 * time.Second,
 		},
 		baseURL:    "https://127.0.0.1:2999/liveclientdata",
-		DDragonURL: "https://ddragon.leagueoflegends.com/cdn/12.16.1/data/en_US",
+		DDragonURL: "http://ddragon.leagueoflegends.com",
 	}
 }
 
@@ -39,4 +41,24 @@ func (c *Client) FetchAllGameData() ([]byte, error) {
 	}
 
 	return io.ReadAll(resp.Body)
+}
+
+func (c *Client) GetLatestPatchVersion() (string, error) {
+	resp, err := c.httpClient.Get(c.DDragonURL + "/api/versions.json")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var versions []string
+	if err = json.NewDecoder(resp.Body).Decode(&versions); err != nil {
+		return "", err
+	}
+
+	if len(versions) == 0 {
+		return "", fmt.Errorf("no versions found")
+	}
+
+	// The first element is always the latest live patch
+	return versions[0], nil
 }

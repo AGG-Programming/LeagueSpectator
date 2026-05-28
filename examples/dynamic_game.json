@@ -20,9 +20,8 @@
         "remainingTime": 120
       },
       {
-        "key": "dragon",
+        "key": "hextech",
         "icon": "3009",
-        "name": "Hextech",
         "orderKey": 1
       }
     ],
