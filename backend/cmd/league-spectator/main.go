@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
+	"github.com/AGG-Programming/LeagueSpectator/internal/models"
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
 )
 
@@ -32,21 +34,48 @@ func main() {
 	})
 
 	go func() {
-		ticker := time.NewTicker(500 * time.Millisecond)
+		slowTicker := 5 * time.Second
+		fastTicker := 500 * time.Millisecond
+
+		ticker := time.NewTicker(slowTicker)
 		defer ticker.Stop()
 
+		inGame := false
+
 		for range ticker.C {
+			log.Println("Fetching game data...")
 			data, err := leagueClient.FetchAllGameData()
+			if err != nil {
+				if inGame {
+					log.Println("Game finished or disconnected. Backing off to slow polling.")
+					inGame = false
+					ticker.Reset(slowTicker)
+				}
+				continue
+			}
+			if !inGame {
+				log.Println("Game detected! Switching to fast 500ms streaming loop.")
+				inGame = true
+				ticker.Reset(fastTicker)
+			}
+			var dynamicData models.DynamicGameData
+			err = dynamicData.UnmarshalJSON(data)
 			if err != nil {
 				continue
 			}
 
-			wsHub.Broadcast <- data
+			msg, err := json.Marshal(dynamicData)
+			if err != nil {
+				log.Println("Error marshalling dynamic data: ", err)
+				continue
+			}
+
+			wsHub.Broadcast <- msg
 		}
 	}()
 
 	log.Println("Listening on port 8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err = http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
 }

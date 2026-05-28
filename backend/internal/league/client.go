@@ -10,6 +10,7 @@ import (
 type Client struct {
 	httpClient *http.Client
 	baseURL    string
+	DDragonURL string
 }
 
 func NewClient() *Client {
@@ -21,7 +22,8 @@ func NewClient() *Client {
 			Transport: tr,
 			Timeout:   2 * time.Second,
 		},
-		baseURL: "https://127.0.0.1:2999/liveclientdata",
+		baseURL:    "https://127.0.0.1:2999/liveclientdata",
+		DDragonURL: "https://ddragon.leagueoflegends.com/cdn/12.16.1/data/en_US",
 	}
 }
 
@@ -31,6 +33,10 @@ func (c *Client) FetchAllGameData() ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, err
+	}
 
 	return io.ReadAll(resp.Body)
 }
