@@ -163,6 +163,7 @@ func (p *Processor) getPlayers(players []league.Player) ([]models.Player, []mode
 			Level:           player.Level,
 			Position:        player.Position,
 			RespawnTimer:    player.RespawnTimer,
+			RiotId:          player.RiotID,
 			PlayerTotalGold: 0, //TODO: Calculate Gold
 			Runes: models.Runes{
 				Keystone: models.Rune{
