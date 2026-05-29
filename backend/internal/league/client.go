@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 )
@@ -29,7 +28,7 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) FetchAllGameData() ([]byte, error) {
+func (c *Client) FetchAllGameData() (*GameData, error) {
 	resp, err := c.httpClient.Get(c.baseURL + "/allgamedata")
 	if err != nil {
 		return nil, err
@@ -39,8 +38,12 @@ func (c *Client) FetchAllGameData() ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, err
 	}
+	var gameData GameData
+	if err = json.NewDecoder(resp.Body).Decode(&gameData); err != nil {
+		return nil, err
+	}
 
-	return io.ReadAll(resp.Body)
+	return &gameData, nil
 }
 
 func (c *Client) GetLatestPatchVersion() (string, error) {
@@ -59,6 +62,5 @@ func (c *Client) GetLatestPatchVersion() (string, error) {
 		return "", fmt.Errorf("no versions found")
 	}
 
-	// The first element is always the latest live patch
 	return versions[0], nil
 }

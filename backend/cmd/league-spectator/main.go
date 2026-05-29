@@ -6,15 +6,23 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/AGG-Programming/LeagueSpectator/internal/ddragon"
 	"github.com/AGG-Programming/LeagueSpectator/internal/handler"
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
+	"github.com/AGG-Programming/LeagueSpectator/internal/processor"
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
 )
 
 func main() {
+	ddragonClient := ddragon.NewClient()
 	leagueClient := league.NewClient()
 	wsHub := websocket.NewHub()
-	handlerClient := handler.NewHandler(leagueClient, wsHub)
+	cache, err := ddragon.NewCache(ddragonClient)
+	if err != nil {
+		log.Fatal("cannot create cache: ", err)
+	}
+	proc := processor.NewProcessor(cache)
+	handlerClient := handler.NewHandler(leagueClient, wsHub, proc)
 
 	go wsHub.Run()
 
