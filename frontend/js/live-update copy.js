@@ -193,7 +193,7 @@ function updatePlayerScoreboard(data) {
 
 function updatePlayerCard(cardEl, p) {
     const champImg = cardEl.querySelector('.champ-img');
-    if (champImg) champImg.src = `${p.icon}`;
+    if (champImg) champImg.src = p.icon;
 
     const lvlEl = cardEl.querySelector('.champ-level');
     if (lvlEl) lvlEl.textContent = p.level;
