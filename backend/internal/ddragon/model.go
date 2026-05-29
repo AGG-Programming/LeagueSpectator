@@ -27,7 +27,7 @@ type SpellResponse struct {
 type RuneResponse []RuneTree
 
 type RuneTree struct {
-	ID    int        `json:"key"`
+	ID    int        `json:"id"`
 	Icon  string     `json:"icon"`
 	Slots []RuneSlot `json:"slots"`
 }
