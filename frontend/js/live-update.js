@@ -31,7 +31,7 @@ socket.onerror = (error) => {
 
 function formatGameTime(seconds) {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
@@ -214,15 +214,20 @@ function updatePlayerCard(cardEl, p) {
         const deathOverlay = cardEl.querySelector('.death-timer-overlay');
         const hpBar = cardEl.querySelector('.hp-bar');
         const manaBar = cardEl.querySelector('.mana-bar');
+        const bountyTag = cardEl.querySelector('.bounty-tag');
 
         if (p.isDead) {
             avatarBox.classList.add('dead');
-            if(hpBar) {
+            if (hpBar) {
                 hpBar.style.width = '0%';
                 hpBar.classList.add('dead-bar');
             }
-            if(manaBar) {
+            if (manaBar) {
                 manaBar.style.width = '0%'
+            }
+            if (deathOverlay) {
+                deathOverlay.classList.remove('hidden');
+                deathOverlay.innerHTML = `<span>${Math.floor(p.respawnTimer)}</span>`;
             }
         } else {
             avatarBox.classList.remove('dead');
@@ -233,7 +238,7 @@ function updatePlayerCard(cardEl, p) {
             if (manaBar) {
                 manaBar.style.width = '100%';
             }
-            if (deathOverlay) deathOverlay.style.display = 'none'
+            if (deathOverlay) deathOverlay.classList.add('hidden');
         }
     }
 
@@ -242,6 +247,14 @@ function updatePlayerCard(cardEl, p) {
         if (runeImages.length >= 2) {
             if (p.runes.keystone) runeImages[0].src = p.runes.keystone.icon;
             if (p.runes.secondary) runeImages[1].src = p.runes.secondary.icon;
+        }
+    }
+
+    const summSlots = cardEl.querySelectorAll('.summs-container .summ-slot');
+    if (summSlots.length >= 2) {
+        if (p.spells.length >= 2) {
+            summSlots[0].innerHTML = `<img src="${p.spells[0].icon}" alt="${p.spells[0].displayName}">`;
+            summSlots[1].innerHTML = `<img src="${p.spells[1].icon}" alt="${p.spells[1].displayName}">`;
         }
     }
 
@@ -261,8 +274,17 @@ function updatePlayerCard(cardEl, p) {
             slot.innerHTML = `<img src="${item.icon}" alt="${item.id}">`;
 
             if (item.consumable) {
-                slot.innerHTML += `<span class="item-count">${item.count}`
+                slot.innerHTML += `<span class="item-count">${item.count}</span>`
             }
         });
+    }
+
+    const wardSlot = cardEl.querySelector('.ward-slot');
+    if (wardSlot) {
+        const wardItem = p.items.find(item => item.slot === 6);
+        wardSlot.innerHTML = `
+            <img src="${wardItem.icon}" alt="${wardItem.id}">
+            <span class="ward-count">${Math.floor(p.scores.wardScore)}</span>
+        `;
     }
 }
