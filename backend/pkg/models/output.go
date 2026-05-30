@@ -15,7 +15,6 @@ type Timer struct {
 
 type Team struct {
 	Score      int         `json:"score"`
-	Gold       int         `json:"gold"`
 	Objectives []Objective `json:"objectives"`
 	Players    []Player    `json:"players"`
 }
@@ -30,24 +29,22 @@ type Objective struct {
 }
 
 type Player struct {
-	ChampionName    string  `json:"championName"`
-	Icon            string  `json:"icon"`
-	IsDead          bool    `json:"isDead"`
-	Level           int     `json:"level"`
-	Position        string  `json:"position"`
-	RespawnTimer    float64 `json:"respawnTimer"`
-	RiotId          string  `json:"riotId"`
-	PlayerTotalGold int     `json:"playerTotalGold"`
-	Runes           Runes   `json:"runes"`
-	Items           []Item  `json:"items"`
-	Scores          Scores  `json:"scores"`
-	Spells          []Spell `json:"spells"`
+	ChampionName string  `json:"championName"`
+	Icon         string  `json:"icon"`
+	IsDead       bool    `json:"isDead"`
+	Level        int     `json:"level"`
+	Position     string  `json:"position"`
+	RespawnTimer float64 `json:"respawnTimer"`
+	RiotId       string  `json:"riotId"`
+	Runes        Runes   `json:"runes"`
+	Items        []Item  `json:"items"`
+	Scores       Scores  `json:"scores"`
+	Spells       []Spell `json:"spells"`
 }
 
 type Spell struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
-	Extended    string `json:"-"`
 }
 
 type Scores struct {

@@ -9,6 +9,7 @@ type GameData struct {
 }
 
 type Event struct {
+	EventID    int     `json:"EventID"`
 	EventName  string  `json:"EventName"`
 	EventTime  float64 `json:"EventTime"`
 	KillerName *string `json:"KillerName,omitempty"`
@@ -30,6 +31,13 @@ type Player struct {
 }
 
 type Item struct {
+	CanUse      bool   `json:"canUse"`
+	Consumable  bool   `json:"consumable"`
+	Count       int    `json:"count"`
+	DisplayName string `json:"displayName"`
+	ItemID      string `json:"itemID"`
+	Price       int    `json:"price"`
+	Slot        int    `json:"slot"`
 }
 
 type Runes struct {

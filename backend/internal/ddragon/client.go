@@ -95,6 +95,7 @@ func (c *Client) GetItems(version string) (map[string]string, error) {
 	for id, item := range payload.Data {
 		items[id] = fmt.Sprintf("%s/cdn/%s/img/item/%s.png", c.baseUrl, version, item.Image.Full)
 	}
+	println(items["1001"]) //TODO: remove
 	return items, nil
 }
 

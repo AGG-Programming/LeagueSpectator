@@ -8,14 +8,19 @@ type ChampionResponse struct {
 		} `json:"image"`
 	} `json:"data"`
 }
+
 type ItemResponse struct {
-	Data map[string]struct {
-		Name  string `json:"name"`
-		Image struct {
-			Full string `json:"full"`
-		} `json:"image"`
-	} `json:"data"`
+	Data map[string]Item `json:"data"`
 }
+
+type Item struct {
+	Image ImageInfo `json:"image"`
+}
+
+type ImageInfo struct {
+	Full string `json:"full"`
+}
+
 type SpellResponse struct {
 	Data map[string]struct {
 		ID    string `json:"id"`
