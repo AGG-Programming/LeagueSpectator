@@ -42,7 +42,6 @@ func (h *Handler) Handle() {
 					inGame = false
 					ticker.Reset(slowTicker)
 				}
-				log.Println("Error fetching game data: ", err)
 				continue
 			}
 			if !inGame {

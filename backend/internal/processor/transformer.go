@@ -21,6 +21,8 @@ type Processor struct {
 	RedObjectives        []models.Objective
 	BlueDrakeOrderKey    int
 	RedDrakeOrderKey     int
+	BlueGrubKills        int
+	RedGrubKills         int
 }
 
 func NewProcessor(cache Cache) *Processor {
@@ -41,6 +43,8 @@ func (p *Processor) Transformer(data league.GameData) (models.DynamicGameData, e
 
 	blueScore, redScore := p.getTeamScore(data.Players)
 	bluePlayers, redPlayers := p.getPlayers(data.Players)
+
+	p.getTeamObjectives(data.Events.Events, blueTeam, redTeam)
 
 	output := models.DynamicGameData{
 		BlueTeam: models.Team{
