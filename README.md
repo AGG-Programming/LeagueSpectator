@@ -19,3 +19,16 @@ League Spectator is not endorsed by Riot Games and does not reflect the views or
 
 ## Prime League
 League Spectator uses the Prime League API but may work only for AGG Games and needs an API key.
+
+## Deployment
+Commands to release a new version:
+
+```
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+Build locally:
+```
+goreleaser release --snapshot --clean
+```
