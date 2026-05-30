@@ -2,7 +2,12 @@ import cv2
 import mss
 import pytesseract
 import re
+import websockets
+import asyncio
+import threading
+import queue
 import pydirectinput
+import json
 import time
 import numpy as np
 
@@ -164,7 +169,7 @@ def createMask(image, mask_type):
 def preprocessImage(image, mask_type):
     if image is None:
         return None
-    resized = cv2.resize(image, None, fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
+    resized = cv2.resize(image, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
     processed = cv2.GaussianBlur(createMask(resized, mask_type), (3,3), 0)
     return processed
 
@@ -193,7 +198,8 @@ def getBluePlayerGold():
         value = getNumbersFromScreen(e["bbox"], e["mask_type"])
         gold_values = parseGold(value)
         key = f"b{i+1}"
-        data[key] = gold_values[1]
+        if len(gold_values) >= 2:
+            data[key] = gold_values[1]
     return data
 
 def getRedPlayerGold():
@@ -202,7 +208,8 @@ def getRedPlayerGold():
         value = getNumbersFromScreen(e["bbox"], e["mask_type"])
         gold_values = parseGold(value)
         key = f"r{i+1}"
-        data[key] = gold_values[1]
+        if len(gold_values) >= 2:
+            data[key] = gold_values[1]
     return data
 
 def getBluePlayerCreep():
@@ -267,13 +274,55 @@ def getData():
 
     return data
 
+DATA_QUEUE = queue.Queue()
+CONNECTED_CLIENTS = set()
+
+async def register(websocket):
+    CONNECTED_CLIENTS.add(websocket)
+    print(f"New client connected. Active connections: {len(CONNECTED_CLIENTS)}")
+    try:
+        await websocket.wait_closed()
+    finally:
+        CONNECTED_CLIENTS.remove(websocket)
+        print(f"Client disconnected. Active connections: {len(CONNECTED_CLIENTS)}")
+
+async def broadcastFromQueue():
+    while True:
+        loop = asyncio.get_running_loop()
+        try:
+            data_dict = await loop.run_in_executor(None, lambda: DATA_QUEUE.get(timeout=0.5))
+            if CONNECTED_CLIENTS and data_dict:
+                json_message = json.dumps(data_dict)
+                current_clients = list(CONNECTED_CLIENTS)
+                for client in current_clients:
+                    try:
+                        await client.send(json_message)
+                    except Exception as send_error:
+                        print(f"Error while starting the client: {send_error}")
+                print(f"Data successfully sent to {len(current_clients)} client(s).")
+        except queue.Empty:
+            print("")
+
+def startWebsocketServer():
+    async def main():
+        async with websockets.serve(register, "localhost", 8765):
+            print("WebSocket-Server runs on ws://localhost:8765")
+            await broadcastFromQueue()
+    asyncio.run(main())
 
 if __name__ == "__main__":
     print("Script active. Scanning MONITOR 2 for League of Legends...")
     
+    server_thread = threading.Thread(target=startWebsocketServer, daemon=True)
+    server_thread.start()
+
+    time.sleep(1)
 
     while True:
         data = getData()
         print(f"data: {data}")
-        time.sleep(10)
+        if not CONNECTED_CLIENTS:
+            print("Data geathered but no client connected")
+        else:
+            DATA_QUEUE.put(data)
     # pydirectinput.press('o') # Falls du das Scoreboard umschalten willst
