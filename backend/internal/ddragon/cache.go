@@ -3,7 +3,7 @@ package ddragon
 type Cache struct {
 	champions map[string]string
 	runes     map[int]string
-	items     map[string]string
+	items     map[int]string
 	spells    map[string]string
 }
 
@@ -44,7 +44,7 @@ func (c *Cache) GetChampion(id string) string {
 func (c *Cache) GetRune(id int) string {
 	return c.runes[id]
 }
-func (c *Cache) GetItem(id string) string {
+func (c *Cache) GetItem(id int) string {
 	return c.items[id]
 }
 func (c *Cache) GetSpell(id string) string {

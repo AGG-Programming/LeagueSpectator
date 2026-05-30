@@ -42,6 +42,7 @@ func (h *Handler) Handle() {
 					inGame = false
 					ticker.Reset(slowTicker)
 				}
+				log.Println("Error fetching game data: ", err)
 				continue
 			}
 			if !inGame {
@@ -50,7 +51,7 @@ func (h *Handler) Handle() {
 				ticker.Reset(fastTicker)
 			}
 
-			dynamicData, err := h.Processor.Transformer(*data)
+			dynamicData, err := h.Processor.Transformer(data)
 
 			msg, err := json.Marshal(dynamicData)
 			if err != nil {

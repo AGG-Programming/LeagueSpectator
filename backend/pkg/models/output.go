@@ -56,7 +56,7 @@ type Scores struct {
 }
 
 type Item struct {
-	Id         string `json:"id"`
+	Id         int    `json:"id"`
 	Icon       string `json:"icon"`
 	Slot       int    `json:"slot"`
 	Consumable bool   `json:"consumable"`

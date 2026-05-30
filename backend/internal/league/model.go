@@ -35,7 +35,7 @@ type Item struct {
 	Consumable  bool   `json:"consumable"`
 	Count       int    `json:"count"`
 	DisplayName string `json:"displayName"`
-	ItemID      string `json:"itemID"`
+	ItemID      int    `json:"itemID"`
 	Price       int    `json:"price"`
 	Slot        int    `json:"slot"`
 }

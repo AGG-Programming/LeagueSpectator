@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -79,7 +80,7 @@ func (c *Client) GetRunes(version string) (map[int]string, error) {
 	return runes, nil
 }
 
-func (c *Client) GetItems(version string) (map[string]string, error) {
+func (c *Client) GetItems(version string) (map[int]string, error) {
 	resp, err := c.httpClient.Get(c.baseUrl + "/cdn/" + version + "/data/en_US/item.json")
 	if err != nil {
 		return nil, err
@@ -91,11 +92,14 @@ func (c *Client) GetItems(version string) (map[string]string, error) {
 		return nil, err
 	}
 
-	items := make(map[string]string)
-	for id, item := range payload.Data {
-		items[id] = fmt.Sprintf("%s/cdn/%s/img/item/%s.png", c.baseUrl, version, item.Image.Full)
+	items := make(map[int]string)
+	for idStr, item := range payload.Data {
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return nil, err
+		}
+		items[id] = fmt.Sprintf("%s/cdn/%s/img/item/%s", c.baseUrl, version, item.Image.Full)
 	}
-	println(items["1001"]) //TODO: remove
 	return items, nil
 }
 
@@ -113,7 +117,7 @@ func (c *Client) GetSpells(version string) (map[string]string, error) {
 
 	spells := make(map[string]string)
 	for id, spell := range payload.Data {
-		spells[id] = fmt.Sprintf("%s/cdn/%s/img/spell/%s.png", c.baseUrl, version, spell.Image.Full)
+		spells[id] = fmt.Sprintf("%s/cdn/%s/img/spell/%s", c.baseUrl, version, spell.Image.Full)
 	}
 	return spells, nil
 }

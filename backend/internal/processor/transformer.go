@@ -10,7 +10,7 @@ const BlueTeam = "ORDER"
 type Cache interface {
 	GetChampion(id string) string
 	GetRune(id int) string
-	GetItem(id string) string
+	GetItem(id int) string
 	GetSpell(id string) string
 }
 

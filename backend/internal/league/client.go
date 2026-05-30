@@ -28,22 +28,22 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) FetchAllGameData() (*GameData, error) {
+func (c *Client) FetchAllGameData() (GameData, error) {
 	resp, err := c.httpClient.Get(c.baseURL + "/allgamedata")
 	if err != nil {
-		return nil, err
+		return GameData{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, err
+		return GameData{}, err
 	}
 	var gameData GameData
 	if err = json.NewDecoder(resp.Body).Decode(&gameData); err != nil {
-		return nil, err
+		return GameData{}, err
 	}
 
-	return &gameData, nil
+	return gameData, nil
 }
 
 func (c *Client) GetLatestPatchVersion() (string, error) {
