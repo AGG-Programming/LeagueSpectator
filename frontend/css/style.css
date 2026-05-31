@@ -568,6 +568,8 @@ Scoreboard
     z-index: 2;
 }
 
+.no-lead {}
+
 .blue-lead { 
     color: #39A29E;
     border-left: 3px solid #39A29E !important;
