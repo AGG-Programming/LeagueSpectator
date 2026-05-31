@@ -58,7 +58,7 @@ function updateScoreDisplay(data) {
     document.querySelector('.blue-kills').textContent = blue.score;
 
     document.querySelector('.red-side .team-gold').textContent = formatGold(red.gold);
-    document.querySelector('.red-kills').textContent = blue.score;
+    document.querySelector('.red-kills').textContent = red.score;
 
     const goldDiff = blue.gold - red.gold;
     const blueLeadEl = document.querySelector('.blue-side .gold-lead');
@@ -288,3 +288,6 @@ function updatePlayerCard(cardEl, p) {
         `;
     }
 }
+
+
+//completed in div when completed
