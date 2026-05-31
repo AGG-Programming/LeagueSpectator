@@ -28,19 +28,19 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) FetchAllGameData() (GameData, error) {
+func (c *Client) FetchAllGameData() (GameResponse, error) {
 	resp, err := c.httpClient.Get(c.baseURL + "/allgamedata")
 	if err != nil {
-		return GameData{}, err
+		return GameResponse{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return GameData{}, err
+		return GameResponse{}, err
 	}
-	var gameData GameData
+	var gameData GameResponse
 	if err = json.NewDecoder(resp.Body).Decode(&gameData); err != nil {
-		return GameData{}, err
+		return GameResponse{}, err
 	}
 
 	return gameData, nil

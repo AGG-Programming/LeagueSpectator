@@ -1,11 +1,13 @@
 package league
 
-type GameData struct {
+type GameResponse struct {
 	Players []Player `json:"allPlayers"`
 	Events  struct {
 		Events []Event `json:"Events"`
 	} `json:"events"`
-	GameTime float64 `json:"gameTime"`
+	GameData struct {
+		GameTime float64 `json:"gameTime"`
+	}
 }
 
 type Event struct {

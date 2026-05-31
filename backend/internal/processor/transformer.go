@@ -31,7 +31,7 @@ func NewProcessor(cache Cache) *Processor {
 	}
 }
 
-func (p *Processor) Transformer(data league.GameData) (models.DynamicGameData, error) {
+func (p *Processor) Transformer(data league.GameResponse) (models.DynamicGameData, error) {
 	var blueTeam, redTeam []string
 	for _, player := range data.Players {
 		if player.Team == BlueTeam {
@@ -58,7 +58,7 @@ func (p *Processor) Transformer(data league.GameData) (models.DynamicGameData, e
 			Players:    redPlayers,
 		},
 		Timers:   []models.Timer{},
-		GameTime: data.GameTime,
+		GameTime: data.GameData.GameTime,
 	}
 	return output, nil
 }
