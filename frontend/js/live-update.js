@@ -54,11 +54,15 @@ function updateScoreDisplay(data) {
 
     if (!blue || !red) return;
 
-    document.querySelector('.blue-side .team-gold').textContent = formatGold(blue.gold);
+    if (blue.gold) {
+        document.querySelector('.blue-side .team-gold').textContent = formatGold(blue.gold);
+    } else document.querySelector('.blue-side .team-gold').textContent = "0.0K";
     document.querySelector('.blue-kills').textContent = blue.score;
 
-    document.querySelector('.red-side .team-gold').textContent = formatGold(red.gold);
-    document.querySelector('.red-kills').textContent = blue.score;
+    if (red.gold) {
+        document.querySelector('.red-side .team-gold').textContent = formatGold(red.gold);
+    } else document.querySelector('.red-side .team-gold').textContent = "0.0K";
+    document.querySelector('.red-kills').textContent = red.score;
 
     const goldDiff = blue.gold - red.gold;
     const blueLeadEl = document.querySelector('.blue-side .gold-lead');
@@ -178,12 +182,17 @@ function updatePlayerScoreboard(data) {
                 const laneDiff = bluePlayerData.playerTotalGold - redPlayerData.playerTotalGold;
                 diffAmountEl.textContent = formatGold(Math.abs(laneDiff));
 
-                if (laneDiff >= 0) {
+                if (laneDiff > 0) {
                     diffEl.classList.remove('red-lead');
                     diffEl.classList.add('blue-lead');
-                } else {
+                } else if (laneDiff < 0) {
                     diffEl.classList.remove('blue-lead');
                     diffEl.classList.add('red-lead');
+                } else {
+                    diffEl.classList.remove('blue-lead');
+                    diffEl.classList.remove('red-lead');
+                    diffEl.classList.add('no-lead');
+                    diffAmountEl.textContent = "0.0K";
                 }
             }
         }
@@ -266,7 +275,8 @@ function updatePlayerCard(cardEl, p) {
 
     if (p.items && Array.isArray(p.items)) {
         p.items.forEach(item => {
-            const slotIdx = item.slot - 1;
+            const slotIdx = item.slot;
+            if (slotIdx >= 6) return;
             const slot = itemSlots[slotIdx];
             if (!slot) return;
 
@@ -282,9 +292,87 @@ function updatePlayerCard(cardEl, p) {
     const wardSlot = cardEl.querySelector('.ward-slot');
     if (wardSlot) {
         const wardItem = p.items.find(item => item.slot === 6);
-        wardSlot.innerHTML = `
-            <img src="${wardItem.icon}" alt="${wardItem.id}">
-            <span class="ward-count">${Math.floor(p.scores.wardScore)}</span>
-        `;
+        if (wardItem) {
+            wardSlot.classList.remove("empty-slot")
+            wardSlot.innerHTML = `
+                <img src="${wardItem.icon}" alt="${wardItem.id}">
+                <span class="ward-count">${Math.floor(p.scores.wardScore)}</span>
+            `;
+        } else {
+            wardSlot.innerHTML = `<span class="ward-count">${Math.floor(p.scores.wardScore)}</span>`;
+        }
     }
 }
+
+
+//completed in div when completed
+
+//                    <div class="summ-slot cd">
+//                        <img src="assets/images/summs/cloud-drake.png" alt="F">
+//                        <div class="cooldown-overlay"></div>
+
+//                        <div class="ult-slot ready">
+//                           <img src="assets/images/champs/cloud-drake.png" alt="U">
+//                        </div>
+
+//            <span class="spawn-time live">LIVE</span>
+
+//                <div class="drakes-list blue-drakes">
+//                    <img src="assets/images/ui/normal-drake/32px-Infernal_Dragon_Soul_buff - normal.png" class="drake-icon" alt="I">
+//                    <img src="assets/images/ui/normal-drake/32px-Ocean_Dragon_Soul_buff - normal.png" class="drake-icon" alt="O">
+//                </div>
+
+//                    <span class="gold-lead blue-side-lead">+1.4K</span>
+
+//            <div class="lane-gold-diff blue-lead">
+//                <span class="diff-amount">0.0K</span>
+
+/*                    <div class="ward-slot">
+                        <img src="assets/images/items/cloud-drake.png" alt="W">
+                        <span class="ward-count">3</span>
+                    </div>
+                    <div class="quest-slot"><img src="assets/images/items/cloud-drake.png" alt="Q"></div>
+                </div>
+
+                <div class="items-line">
+                    <div class="item-slot">
+                        <img src="assets/images/items/cloud-drake.png" alt="Black Cleaver">
+                        <span class="item-count">2</span>
+                    </div>
+                    <div class="item-slot cd-item">
+                        <img src="assets/images/items/cloud-drake.png" alt="BOTRK">
+                        <div class="item-cooldown-overlay"></div>
+                    </div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                </div>
+*/
+
+/*
+                <div class="summs-container">
+                    <div class="summ-slot">
+                        <img src="assets/images/summs/cloud-drake.png" alt="F">
+                    </div>
+                    <div class="summ-slot">
+                        <img src="assets/images/summs/cloud-drake.png" alt="T">
+                    </div>
+                </div>
+*/
+
+/*
+                <div class="runes-box">
+                    <img src="assets/images/runes/cloud-drake.png" class="main-rune" alt="R">
+                    <img src="assets/images/runes/cloud-drake.png" class="sub-rune" alt="R">
+                </div>
+*/
+
+/*
+                <div class="champ-avatar-box">
+                    <img src="assets/images/champs/cloud-drake.png" class="champ-img" alt="Champ">
+                    <div class="champ-level">5</div>
+                    <div class="death-timer-overlay hidden"></div>
+                    <div class="bounty-tag hidden"></div>
+                </div>
+*/
