@@ -121,3 +121,11 @@ func (c *Client) GetSpells(version string) (map[string]string, error) {
 	}
 	return spells, nil
 }
+
+func (c *Client) GetUlts(version string, champs []string) (map[string]string, error) {
+	ults := make(map[string]string)
+	for _, champ := range champs {
+		ults[champ] = fmt.Sprintf("%s/cdn/%s/img/spell/%sR.png", c.baseUrl, version, champ)
+	}
+	return ults, nil
+}

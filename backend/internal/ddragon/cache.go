@@ -5,6 +5,7 @@ type Cache struct {
 	runes     map[int]string
 	items     map[int]string
 	spells    map[string]string
+	ults      map[string]string
 }
 
 func NewCache(client *Client) (*Cache, error) {
@@ -34,6 +35,11 @@ func NewCache(client *Client) (*Cache, error) {
 	if err != nil {
 		return nil, err
 	}
+	champs := make([]string, 0, len(cache.champions))
+	for k := range cache.champions {
+		champs = append(champs, k)
+	}
+	cache.ults, err = client.GetUlts(version, champs)
 
 	return cache, nil
 }
@@ -49,4 +55,7 @@ func (c *Cache) GetItem(id int) string {
 }
 func (c *Cache) GetSpell(id string) string {
 	return c.spells[id]
+}
+func (c *Cache) GetUlt(id string) string {
+	return c.ults[id]
 }

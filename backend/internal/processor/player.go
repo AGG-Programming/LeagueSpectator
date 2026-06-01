@@ -40,7 +40,8 @@ func (p *Processor) getPlayers(players []league.Player) ([]models.Player, []mode
 				Kills:      player.Scores.Kills,
 				WardScore:  player.Scores.WardScore,
 			},
-			Spells: p.getSpells(player.Spells),
+			Spells:  p.getSpells(player.Spells),
+			UltIcon: p.cache.GetUlt(player.ChampionName),
 		}
 
 		if player.Team == BlueTeam {

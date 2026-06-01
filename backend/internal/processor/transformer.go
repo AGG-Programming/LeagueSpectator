@@ -12,6 +12,7 @@ type Cache interface {
 	GetRune(id int) string
 	GetItem(id int) string
 	GetSpell(id string) string
+	GetUlt(id string) string
 }
 
 type Processor struct {

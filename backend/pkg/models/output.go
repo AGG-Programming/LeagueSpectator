@@ -40,6 +40,8 @@ type Player struct {
 	Items        []Item  `json:"items"`
 	Scores       Scores  `json:"scores"`
 	Spells       []Spell `json:"spells"`
+	UltIcon      string  `json:"ultIcon"`
+	QuestIcon    string  `json:"questIcon"`
 }
 
 type Spell struct {
