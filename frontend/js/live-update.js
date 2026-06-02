@@ -28,6 +28,36 @@ socket.onerror = (error) => {
     console.error('WebSocket error:', error);
 };
 
+const scriptSocket = new WebSocket('ws://localhost:8765/ws')
+
+scriptSocket.onopen = () => {
+    console.log('WebSocket-Connection for the P-Script to the Spactator Server established.');
+};
+
+scriptSocket.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+
+        updateTeamGold(data);
+        updatePlayerGoldDiff(data);
+        updatePlayerCs(data);
+        updatePlayerBounty(data);
+
+    }   catch (error) {
+        console.error('Error parsing the WebSocket for P-Script data:', error);
+    }
+};
+
+scriptSocket.onclose = () => {
+    console.warn('WebSocket-Connection for P-Script closed. Try to reconnect in 5 seconds...');
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000);
+};
+
+scriptSocket.onerror = (error) => {
+    console.error('WebSocket for P-Script error:', error);
+};
 
 function formatGameTime(seconds) {
     const mins = Math.floor(seconds / 60);
@@ -54,39 +84,9 @@ function updateScoreDisplay(data) {
 
     if (!blue || !red) return;
 
-    if (blue.gold) {
-        document.querySelector('.blue-side .team-gold').textContent = formatGold(blue.gold);
-    } else document.querySelector('.blue-side .team-gold').textContent = "0.0K";
     document.querySelector('.blue-kills').textContent = blue.score;
 
-    if (red.gold) {
-        document.querySelector('.red-side .team-gold').textContent = formatGold(red.gold);
-    } else document.querySelector('.red-side .team-gold').textContent = "0.0K";
     document.querySelector('.red-kills').textContent = red.score;
-
-    const goldDiff = blue.gold - red.gold;
-    const blueLeadEl = document.querySelector('.blue-side .gold-lead');
-    const redLeadEl = document.querySelector('.red-side .gold-lead');
-
-    if (goldDiff > 0) {
-        if (blueLeadEl) {
-            blueLeadEl.classList.remove('hidden');
-            blueLeadEl.classList.add('blue-side-lead');
-            blueLeadEl.textContent = `+${formatGold(goldDiff)}`;
-        }
-        if (redLeadEl) redLeadEl.classList.add('hidden');
-    } else if (goldDiff < 0) {
-        if (redLeadEl) {
-            redLeadEl.classList.remove('hidden');
-            redLeadEl.classList.add('red-side-lead');
-            redLeadEl.textContent = `+${formatGold(Math.abs(goldDiff))}`;
-        }
-        if (blueLeadEl) blueLeadEl.classList.add('hidden');
-    } else {
-        if (blueLeadEl) blueLeadEl.classList.add('hidden');
-        if (redLeadEl) redLeadEl.classList.add('hidden');
-    }
-
 
     if (blue.objectives) {
         blue.objectives.forEach(obj => {
@@ -173,29 +173,6 @@ function updatePlayerScoreboard(data) {
         if (redCard && redPlayerData) {
             updatePlayerCard(redCard, redPlayerData);
         }
-
-        if (bluePlayerData && redPlayerData) {
-            const diffEl = row.querySelector('.lane-gold-diff');
-            const diffAmountEl = row.querySelector('.lane-gold-diff .diff-amount');
-
-            if (diffEl && diffAmountEl) {
-                const laneDiff = bluePlayerData.playerTotalGold - redPlayerData.playerTotalGold;
-                diffAmountEl.textContent = formatGold(Math.abs(laneDiff));
-
-                if (laneDiff > 0) {
-                    diffEl.classList.remove('red-lead');
-                    diffEl.classList.add('blue-lead');
-                } else if (laneDiff < 0) {
-                    diffEl.classList.remove('blue-lead');
-                    diffEl.classList.add('red-lead');
-                } else {
-                    diffEl.classList.remove('blue-lead');
-                    diffEl.classList.remove('red-lead');
-                    diffEl.classList.add('no-lead');
-                    diffAmountEl.textContent = "0.0K";
-                }
-            }
-        }
     }
 }
 
@@ -211,9 +188,6 @@ function updatePlayerCard(cardEl, p) {
     if (nameEl) nameEl.textContent = p.riotId ? p.riotId.split('#')[0] : '';
 
     if (p.scores) {
-        const csEl = cardEl.querySelector('.player-cs');
-        if (csEl) csEl.textContent = p.scores.creepScore;
-
         const kdaEl = cardEl.querySelector('.player-kda');
         if (kdaEl) kdaEl.textContent = `${p.scores.kills}/${p.scores.deaths}/${p.scores.assists}`;
     }
@@ -300,6 +274,171 @@ function updatePlayerCard(cardEl, p) {
             `;
         } else {
             wardSlot.innerHTML = `<span class="ward-count">${Math.floor(p.scores.wardScore)}</span>`;
+        }
+    }
+}
+
+
+
+//-----------------------------WebSocket P-Script------------------------------------#
+
+function updateTeamGold(data) {
+    const blue_gold = data.team_gold.blue_team;
+    const red_gold = data.team_gold.red_team;
+
+    if (blue_gold) {
+        document.querySelector('.blue-side .team-gold').textContent = formatGold(blue_gold);
+    } else document.querySelector('.blue-side .team-gold').textContent = "0.0K";
+
+    if (red_gold) {
+        document.querySelector('.red-side .team-gold').textContent = formatGold(red_gold);
+    } else document.querySelector('.red-side .team-gold').textContent = "0.0K";
+
+    const goldDiff = blue_gold - red_gold;
+    const blueLeadEl = document.querySelector('.blue-side .gold-lead');
+    const redLeadEl = document.querySelector('.red-side .gold-lead');
+
+    if (goldDiff > 0) {
+        if (blueLeadEl) {
+            blueLeadEl.classList.remove('hidden');
+            blueLeadEl.classList.add('blue-side-lead');
+            blueLeadEl.textContent = `+${formatGold(goldDiff)}`;
+        }
+        if (redLeadEl) redLeadEl.classList.add('hidden');
+    } else if (goldDiff < 0) {
+        if (redLeadEl) {
+            redLeadEl.classList.remove('hidden');
+            redLeadEl.classList.add('red-side-lead');
+            redLeadEl.textContent = `+${formatGold(Math.abs(goldDiff))}`;
+        }
+        if (blueLeadEl) blueLeadEl.classList.add('hidden');
+    } else {
+        if (blueLeadEl) blueLeadEl.classList.add('hidden');
+        if (redLeadEl) redLeadEl.classList.add('hidden');
+    }
+}
+
+function updatePlayerGoldDiff(data) {
+    const bluePlayers = data.gold.blue;
+    const redPlayers = data.gold.red;
+
+    if (!bluePlayers || !redPlayers) return;
+
+    const rows = document.querySelectorAll('#player-scoreboard .player-row');
+
+    for (let i = 0; i < 5; i++) {
+        const row = rows[i];
+        if (!row) break;
+
+        const bPlayer = `b${i+1}`;
+        const rPlayer = `r${i+1}`;
+        const blueGold = bluePlayers[bPlayer];
+        const redGold = redPlayers[rPlayer];
+        console.log("blueGold: ",blueGold);
+        console.log("redGold: ",redGold);
+        const bluePlayerGold = parseInt(blueGold, 10);
+        const redPlayerGold = parseInt(redGold, 10);
+        console.log("blueGold: ",bluePlayerGold);
+        console.log("redGold: ",redPlayerGold);
+
+        const goldDiff = bluePlayerGold - redPlayerGold;
+        const LeadEl = row.querySelector('.lane-gold-diff');
+        console.log("gold diff: ", goldDiff);
+
+        if (LeadEl) {
+            const amountEl = LeadEl.querySelector('.diff-amount');
+            
+            // 1. Erstmal alle Lead-Klassen komplett säubern
+            LeadEl.classList.remove('blue-lead', 'red-lead', 'no-lead');
+
+            if (goldDiff > 0) {
+                LeadEl.classList.add('blue-lead');
+                if (amountEl) amountEl.textContent = `+${formatGold(goldDiff)}`;
+            } else if (goldDiff < 0) {
+                LeadEl.classList.add('red-lead');
+                if (amountEl) amountEl.textContent = `+${formatGold(Math.abs(goldDiff))}`;
+            } else {
+                LeadEl.classList.add('no-lead');
+                if (amountEl) amountEl.textContent = '0.0K';
+            }
+        }
+    }
+}
+
+function updatePlayerCs(data) {
+    const bluePlayers = data.creep.blue;
+    const redPlayers = data.creep.red;
+
+    if (!bluePlayers || !redPlayers) return;
+
+    const rows = document.querySelectorAll('#player-scoreboard .player-row');
+
+    for (let i = 0; i < 5; i++) {
+        const row = rows[i];
+        if (!row) break;
+
+        const bPlayer = `b${i+1}`;
+        const rPlayer = `r${i+1}`;
+        const bluePlayerData = bluePlayers[bPlayer];
+        const redPlayerData = redPlayers[rPlayer];
+
+        const blueCard = row.querySelector('.blue-player');
+        if (blueCard && bluePlayerData) {
+            const csEl = blueCard.querySelector('.player-cs');
+            if (csEl) csEl.textContent = bluePlayerData;
+        }
+
+        const redCard = row.querySelector('.red-player');
+        if (redCard && redPlayerData) {
+            const csEl = redCard.querySelector('.player-cs');
+            if (csEl) csEl.textContent = redPlayerData;
+        }
+    }
+}
+
+function updatePlayerBounty(data) {
+    const bluePlayers = data.bounty.blue;
+    const redPlayers = data.bounty.red;
+
+    if (!bluePlayers || !redPlayers) return;
+
+    const rows = document.querySelectorAll('#player-scoreboard .player-row');
+
+    for (let i = 0; i < 5; i++) {
+        const row = rows[i];
+        if (!row) break;
+
+        const bPlayer = `b${i+1}`;
+        const rPlayer = `r${i+1}`;
+        const bluePlayerBounty = bluePlayers[bPlayer];
+        const redPlayerBounty = redPlayers[rPlayer];
+
+        const blueCard = row.querySelector('.blue-player');
+        if (blueCard) {
+            const bountyEl = blueCard.querySelector('.bounty-tag');
+            if (bountyEl) {
+                if (bluePlayerBounty > 0) {
+                    bountyEl.classList.remove('hidden');
+                    bountyEl.textContent = bluePlayerBounty;
+                } else {
+                    bountyEl.classList.add('hidden');
+                    bountyEl.textContent = "";
+                }
+            }
+        }
+
+        const redCard = row.querySelector('.red-player');
+        if (redCard) {
+            const bountyEl = redCard.querySelector('.bounty-tag');
+            if (bountyEl) {
+                if (redPlayerBounty > 0) {
+                    bountyEl.classList.remove('hidden');
+                    bountyEl.textContent = redPlayerBounty;
+                } else {
+                    bountyEl.classList.add('hidden');
+                    bountyEl.textContent = "";
+                }
+            }
         }
     }
 }
