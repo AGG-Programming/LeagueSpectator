@@ -69,28 +69,68 @@ def parseGold(gold_value):
     return [int(num) for num in matches]
 
 def processCategoryBatch(full_frame, bbox_list, mask_type):
-    """Nutzt das im RAM liegende Gesamtbild, zerschneidet und vconcated es"""
+    """Nutzt vconcat für maximale Performance (wie dein Original),
+    ordnet den Text aber über Y-Koordinaten exakt dem richtigen Spieler zu."""
     processed_images = []
+    slot_heights = [] # Hier merken wir uns die Höhe jedes einzelnen Bildes
     
     for bbox in bbox_list:
         cropped = cropFromFrame(full_frame, bbox)
         processed = preprocessImage(cropped, mask_type)
-        if processed is not None:
+        if processed is not None and processed.size > 0:
             bordered = cv2.copyMakeBorder(processed, 4, 4, 0, 0, cv2.BORDER_CONSTANT, value=0)
             processed_images.append(bordered)
+            slot_heights.append(bordered.shape[0]) # Höhe speichern (inkl. Border)
+        else:
+            # Falls ein Bild komplett leer/None ist, packen wir ein leeres Dummy-Bild rein,
+            # damit die Gesamthöhe für die späteren Spieler weiterhin stimmt!
+            # Wir nehmen einfach eine Standardhöhe von 30px, falls wir noch keine haben
+            h = processed_images[0].shape[0] if processed_images else 30
+            w = processed_images[0].shape[1] if processed_images else 100
+            dummy = np.zeros((h, w), dtype=np.uint8)
+            processed_images.append(dummy)
+            slot_heights.append(h)
             
     if not processed_images:
         return ["0"] * 5
 
+    # Blitzschnelles vconcat wie im Original
     vertical_strip = cv2.vconcat(processed_images)
     
-    customConfig = r'--oem 3 --psm 6 -c tessedit_char_whitelist=0123456789.kK()G'
-    raw_text = pytesseract.image_to_string(vertical_strip, config=customConfig)
+    # JETZT DER TRICK: Wir holen uns die Daten inkl. Koordinaten von Tesseract
+    customConfig = r'--oem 3 --psm 6 -c tessedit_char_whitelist=0123456789.kK()'
+    ocr_data = pytesseract.image_to_data(vertical_strip, config=customConfig, output_type=pytesseract.Output.DICT)
     
-    lines = [line.strip() for line in raw_text.split('\n') if line.strip()]
-    while len(lines) < 5:
-        lines.append("0")
-    return lines[:5]
+    # Array für die 5 Spieler vorbereiten
+    final_lines = ["0"] * 5
+    
+    # Wir berechnen die Y-Bereiche (Ranges) für jeden der 5 Slots im Gesamtbild
+    slot_ranges = []
+    current_y = 0
+    for height in slot_heights:
+        slot_ranges.append((current_y, current_y + height))
+        current_y += height
+
+    # Wir gehen durch alle von Tesseract erkannten Text-Elemente
+    for i in range(len(ocr_data['text'])):
+        text = ocr_data['text'][i].strip()
+        if not text:
+            continue
+            
+        # Wo im Bild wurde dieser Text gefunden? (Y-Koordinate der Oberkante + Mitte)
+        text_y = ocr_data['top'][i] + (ocr_data['height'][i] // 2)
+        
+        # Prüfen, in welchen Spieler-Slot diese Y-Koordinate fällt
+        for slot_idx, (top, bottom) in enumerate(slot_ranges):
+            if top <= text_y <= bottom:
+                # Text dem richtigen Spieler zuweisen. Falls schon Text da ist (z.B. getrennt gelesen), anfügen
+                if final_lines[slot_idx] == "0":
+                    final_lines[slot_idx] = text
+                else:
+                    final_lines[slot_idx] += " " + text
+                break
+
+    return final_lines
 
 def getData(full_frame):
     """Verarbeitet alle Daten basierend auf dem EINEN gelieferten Screenshot"""
