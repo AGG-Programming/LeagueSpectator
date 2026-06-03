@@ -719,10 +719,12 @@ Scoreboard
     background: #001D1D;
     flex-shrink: 0;
     z-index: 2;
+    overflow: hidden;
 }
 .ult-slot img {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
     object-fit: cover;
 }
 .ult-slot.unlearned {

@@ -267,13 +267,27 @@ function updatePlayerCard(cardEl, p) {
     if (wardSlot) {
         const wardItem = p.items.find(item => item.slot === 6);
         if (wardItem) {
-            wardSlot.classList.remove("empty-slot")
+            wardSlot.classList.remove("empty-slot");
             wardSlot.innerHTML = `
                 <img src="${wardItem.icon}" alt="${wardItem.id}">
                 <span class="ward-count">${Math.floor(p.scores.wardScore)}</span>
             `;
         } else {
             wardSlot.innerHTML = `<span class="ward-count">${Math.floor(p.scores.wardScore)}</span>`;
+        }
+    }
+
+    const ultSlot = cardEl.querySelector('.ult-slot');
+    if (ultSlot) {
+        if (p.ultIcon) {
+            ultSlot.innerHTML = `<img src="${p.ultIcon}" alt="U">`;
+            if (p.level >= 6) {
+                ultSlot.classList.remove("unlearned");
+                ultSlot.classList.add("ready");
+            } else {
+                ultSlot.classList.remove("ready");
+                ultSlot.classList.add("unlearned");
+            }
         }
     }
 }
