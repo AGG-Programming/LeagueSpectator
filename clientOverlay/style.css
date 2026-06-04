@@ -1,0 +1,316 @@
+/* Grundaufbau & Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: #000;
+    overflow: hidden;
+}
+
+/* Feste 1080p Canvas für OBS Studio */
+.overlay-container {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    background-color: #247F53;
+    color: #ffffff;
+    display: flex;
+}
+
+/* LINKER HAUPTBEREICH */
+.main-content-left {
+    width: 1330px; /* 1280px Client + 25px linker Abstand + Puffer */
+    height: 1080px;
+    padding-top: 25px;
+    padding-left: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 1280x720 Box für den LoL Client */
+.client-capture-zone {
+    width: 1280px;
+    height: 720px;
+    background-color: transparent;
+    outline: 3px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px; /* Fester Abstand nach unten für die Textzeile */
+}
+
+/* Die Infobar direkt unter dem Rahmen */
+.bottom-info-bar {
+    width: 1280px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 350px; /* ABSTAND ERHÖHT (vorher 120px) -> Schiebt TikTok weiter nach rechts */
+    margin-bottom: 15px;
+}
+
+/* Jetzt Live Text */
+.live-status-container {
+    font-size: 34px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.status-label {
+    color: #ffffff;
+}
+
+.streamer-name {
+    color: #ffffff;
+    margin-left: 10px;
+}
+
+/* TikTok Bereich */
+.social-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.social-icon {
+    width: 50px;
+    height: 50px;
+}
+
+.social-handle {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* Unsichtbarer Platzhalter für das OBS-interne OP.GG Widget unter den Texten */
+.opgg-widget-placeholder {
+    width: 460px;
+    height: 136px;
+    background: transparent;
+}
+
+
+/* RECHTE SEITE (Sidebar) */
+.sidebar-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(1920px - 1280px - 25px); /* 615px Breite */
+    height: 1055px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 35px 15px;
+    gap: 20px;
+}
+
+/* 1. Element: Schriftzug oben rechts */
+.brand-top {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.mini-logo {
+    width: 80px;
+    height: auto;
+}
+
+.brand-text {
+    font-size: 40px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* 2. Element: Deine Prime League Tabelle */
+/* ... Vorherige Styles bleiben gleich ... */
+
+/* 2. Element: Deine Prime League Tabelle (Höhe auf 340px erhöht für das Next Game) */
+/* 2. Element: Deine Prime League Tabelle (Auf automatische Höhe umgestellt) */
+#league-standings-box {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    height: auto; /* Ändert die feste Höhe auf automatisch, um Leerraum zu löschen */
+    background: #001D1D;
+    border: 2px solid #7C8C9B;
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(36, 127, 83, 0.5);
+    padding: 12px;
+    padding-bottom: 16px; /* Ein klein wenig Puffer für einen sauberen Abschluss unten */
+}
+
+/* ... Zwischen-Styles bleiben gleich ... */
+
+
+/* --- NEUE STYLES FÜR DAS NÄCHSTE MATCH --- */
+
+/* Durchgezogene Trennlinie vor dem Next Game */
+.next-game-gap td {
+    padding: 10px 0 6px 0;
+}
+.next-game-gap div {
+    width: 100%;
+    border-top: 1px solid #7C8C9B;
+}
+
+/* Flexbox-Layout für die Infozeile darunter */
+.next-game-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.next-game-label {
+    font-weight: bold;
+    color: #39A29E !important; /* Hebt das "Next Game" farblich leicht ab */
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.next-game-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.next-game-date {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(124, 140, 155, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+/* 3. Element: Das große Logo (Maximal vergrößert für die rechte Seite) */
+.large-logo-container {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.large-logo {
+    width: 135%;
+    max-width: 560px;
+    height: auto;
+    object-fit: contain;
+    opacity: 0.40;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
+}
+
+/* --- TABELLEN STYLES --- */
+#league-standings-box text,
+#league-standings-box span,
+#league-standings-box div {
+    color: #ffffff !important;
+}
+
+.box-header h3 {
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #ffffff;
+    border-bottom: 1px solid #7C8C9B;
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    table-layout: fixed;
+}
+
+.standings-table th:nth-child(1) { width: 30px; }
+.standings-table th:nth-child(2) { width: 155px; }
+.standings-table th:nth-child(3) { width: 65px; }
+.standings-table th:nth-child(4) { width: 45px; }
+
+.standings-table th {
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: left;
+    padding-bottom: 6px;
+}
+
+.standings-table td {
+    padding: 4px 0;
+    vertical-align: middle;
+}
+
+.pos-cell {
+    color: #ffffff;
+}
+
+.team-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-logo {
+    width: 24px;
+    height: 24px;
+}
+
+.name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ffffff;
+}
+
+.standings-table th:nth-child(3), .wl-cell,
+.standings-table th:nth-child(4), .pts-cell {
+    text-align: right;
+    color: #ffffff;
+}
+
+.pts-cell {
+    padding-right: 5px;
+    font-weight: bold;
+}
+
+.table-gap td {
+    padding: 6px 0;
+}
+.table-gap div {
+    width: 100%;
+    border-top: 2px dashed #7C8C9B;
+}
+
+.own-team {
+    color: #ffffff;
+    font-weight: bold;
+    background: #39A29E;
+}
+
+.own-team td:first-child {
+    padding-left: 5px;
+}
+
+.enemy-team {
+    color: #ffffff;
+    font-weight: bold;
+    background: #94272C;
+}
+
+.enemy-team td:first-child {
+    padding-left: 5px;
+}

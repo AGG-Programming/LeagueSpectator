@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoL Client Stream Overlay</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="overlay-container">
+        
+        <!-- LINKER BEREICH: Client Box & Infos direkt darunter -->
+        <div class="main-content-left">
+            <!-- Die LoL Client Box (1280x720) -->
+            <div class="client-capture-zone">
+                <!-- Hier drunter schneidet OBS später den Client ein -->
+            </div>
+
+            <!-- INFOBAR: Direkt unter dem Client-Rahmen -->
+            <div class="bottom-info-bar">
+                <!-- Jetzt Live Sektion -->
+                <div class="live-status-container">
+                    <span class="status-label">Jetzt Live:</span>
+                    <span class="streamer-name">Nimot</span>
+                </div>
+
+                <!-- TikTok Sektion -->
+                <div class="social-container">
+                    <img src="assets/images/tiktok_apps_platform_icon_176035.png" alt="TikTok" class="social-icon">
+                    <span class="social-handle">AGG_LoL</span>
+                </div>
+            </div>
+
+            <!-- Platzhalter für das OBS-interne OP.GG Widget (Unter den Texten) -->
+            <div class="opgg-widget-placeholder"></div>
+        </div>
+
+        <!-- RECHTE SEITE: Branding, Standings & Logo -->
+        <div class="sidebar-right">
+            <!-- 1. Ganz oben: Always Good Games -->
+            <div class="brand-top">
+                <img src="assets/images/Logo-removebg-preview.png" alt="AGG Mini Logo" class="mini-logo">
+                <span class="brand-text">Always Good Games</span>
+            </div>
+            
+            <!-- 2. Direkt darunter: Deine Prime League Tabelle -->
+            <div id="league-standings-box">
+                <div class="box-header">
+                    <h3>PRIME LEAGUE - GRUPPE 7.23</h3>
+                </div>
+                <table class="standings-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>W-L</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pos-cell">1</td>
+                            <td class="team-cell">
+                                <img src="assets/images/Logos/DRR.jpg" alt="" class="team-logo">
+                                <span class="name-text">DRR</span>
+                            </td>
+                            <td class="wl-cell">3 - 0</td>
+                            <td class="pts-cell">9</td>
+                        </tr>
+                        <tr class="own-team">
+                            <td class="pos-cell">2</td>
+                            <td class="team-cell">
+                                <img src="assets/images/Logo-removebg-preview.png" alt="" class="team-logo">
+                                <span class="name-text">AGG</span>
+                            </td>
+                            <td class="wl-cell">2 - 1</td>
+                            <td class="pts-cell">6</td>
+                        </tr>
+                        <tr>
+                            <td class="pos-cell">2</td>
+                            <td class="team-cell">
+                                <img src="assets/images/Logos/catgirls.jpg" alt="" class="team-logo">
+                                <span class="name-text">LES</span>
+                            </td>
+                            <td class="wl-cell">2 - 1</td>
+                            <td class="pts-cell">6</td>
+                        </tr>
+                        <tr class="table-gap">
+                            <td colspan="4"><div></div></td>
+                        </tr> 
+                        <tr class="enemy-team">
+                            <td class="pos-cell">8</td>
+                            <td class="team-cell">
+                                <img src="assets/images/Logos/square_default.jpg" alt="" class="team-logo">
+                                <span class="name-text">SüFü</span>
+                            </td>
+                            <td class="wl-cell">0 - 3</td>
+                            <td class="pts-cell">0</td>
+                        </tr>
+                        
+                        <tr class="next-game-gap">
+                            <td colspan="4"><div></div></td>
+                        </tr>
+                        
+                        <tr class="next-game-row">
+                            <td colspan="4">
+                                <div class="next-game-container">
+                                    <span class="next-game-label">Next Game:</span>
+                                    <div class="next-game-team">
+                                        <img src="assets/images/Logos/square_default.jpg" alt="Enemy Logo" class="team-logo">
+                                        <span class="name-text">SüFü</span>
+                                    </div>
+                                    <span class="next-game-date">offen</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3. Ganz unten: Das riesige teiltransparente Logo -->
+            <div class="large-logo-container">
+                <img src="assets/images/Logo-removebg-preview.png" alt="AGG Large Logo" class="large-logo">
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
