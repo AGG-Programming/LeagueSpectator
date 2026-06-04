@@ -28,6 +28,7 @@ archives:
         formats: [zip]
     files:
       - src: ./frontend/*
+      - src: ./clientOverlay/*
 
 changelog:
   sort: asc
