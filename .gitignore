@@ -2,3 +2,5 @@
 .vscode
 
 dist/
+./displayAnalyzer/dist
+./displayAnalyzer/displayAnalyzer.spec

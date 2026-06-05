@@ -29,6 +29,8 @@ archives:
     files:
       - src: ./frontend/*
       - src: ./clientOverlay/*
+        # the python script is build in pwsh so .exe
+      - src: ./displayAnalyzer/dist/displayAnalyzer.exe
 
 changelog:
   sort: asc
