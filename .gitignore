@@ -4,3 +4,4 @@
 dist/
 ./displayAnalyzer/dist
 ./displayAnalyzer/displayAnalyzer.spec
+./displayAnalyzer/build
