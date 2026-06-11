@@ -2,6 +2,7 @@ package processor
 
 import (
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
+	"github.com/AGG-Programming/LeagueSpectator/internal/pl"
 	"github.com/AGG-Programming/LeagueSpectator/pkg/models"
 )
 
@@ -74,4 +75,48 @@ func (p *Processor) getTeamScore(players []league.Player) (int, int) {
 		}
 	}
 	return blueScore, redScore
+}
+
+func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int) (*models.PrimeLeague, error) {
+	teams, err := data.GetTeamStandings(targetID)
+	if err != nil {
+		return nil, err
+	}
+
+	output := models.PrimeLeague{
+		GroupTitle: data.GroupTitle,
+		TargetTeam: models.PrimeTeam{
+			Tag:      teams.Target.Tag,
+			Wins:     teams.Target.Wins,
+			Losses:   teams.Target.Losses,
+			Points:   teams.Target.Points,
+			Position: teams.Target.Position,
+			Img:      teams.Target.Img,
+		},
+		LeadingTeam: models.PrimeTeam{
+			Tag:      teams.Leading.Tag,
+			Wins:     teams.Leading.Wins,
+			Losses:   teams.Leading.Losses,
+			Points:   teams.Leading.Points,
+			Position: teams.Leading.Position,
+			Img:      teams.Leading.Img,
+		},
+		TrailingTeam: models.PrimeTeam{
+			Tag:      teams.Trailing.Tag,
+			Wins:     teams.Trailing.Wins,
+			Losses:   teams.Trailing.Losses,
+			Points:   teams.Trailing.Points,
+			Position: teams.Trailing.Position,
+			Img:      teams.Trailing.Img,
+		},
+		LastTeam: models.PrimeTeam{
+			Tag:      teams.Last.Tag,
+			Wins:     teams.Last.Wins,
+			Losses:   teams.Last.Losses,
+			Points:   teams.Last.Points,
+			Position: teams.Last.Position,
+			Img:      teams.Last.Img,
+		},
+	}
+	return &output, nil
 }

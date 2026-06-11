@@ -1,26 +1,42 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
-	"github.com/AGG-Programming/LeagueSpectator/internal/processor"
+	"github.com/AGG-Programming/LeagueSpectator/internal/pl"
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
+	"github.com/AGG-Programming/LeagueSpectator/pkg/models"
 )
+
+type PrimeLeague interface {
+	GetLeagueData(ctx context.Context) (*pl.PrimeLeagueResponse, error)
+}
+
+type Processor interface {
+	Transformer(data league.GameResponse) (models.DynamicGameData, error)
+	TransformPL(data pl.PrimeLeagueResponse, targetID int) (*models.PrimeLeague, error)
+}
 
 type Handler struct {
 	LeagueClient *league.Client
 	WsHub        *websocket.Hub
-	Processor    *processor.Processor
+	Processor    Processor
+	PlClient     PrimeLeague
+	TargetTeam   int
 }
 
-func NewHandler(leagueClient *league.Client, wsHub *websocket.Hub, processor *processor.Processor) *Handler {
+func NewHandler(leagueClient *league.Client, wsHub *websocket.Hub, processor Processor, plClient PrimeLeague, targetTeam int) *Handler {
 	return &Handler{
 		LeagueClient: leagueClient,
 		WsHub:        wsHub,
 		Processor:    processor,
+		PlClient:     plClient,
+		TargetTeam:   targetTeam,
 	}
 }
 
@@ -61,4 +77,21 @@ func (h *Handler) Handle() {
 			h.WsHub.Broadcast <- msg
 		}
 	}()
+}
+
+func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
+	data, err := h.PlClient.GetLeagueData(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := h.Processor.TransformPL(*data, h.TargetTeam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
 }

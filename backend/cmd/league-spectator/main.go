@@ -5,15 +5,27 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/AGG-Programming/LeagueSpectator/internal/ddragon"
 	"github.com/AGG-Programming/LeagueSpectator/internal/handler"
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
+	"github.com/AGG-Programming/LeagueSpectator/internal/pl"
 	"github.com/AGG-Programming/LeagueSpectator/internal/processor"
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	_ = godotenv.Load()
+
+	token := os.Getenv("PRIME_LEAGUE_API")
+	targetTeam := os.Getenv("TARGET_TEAM")
+	if token == "" || targetTeam == "" {
+		log.Printf("PRIME_LEAGUE_API or TARGET_TEAM is not set. Will not be able to fetch data from Prime League.")
+	}
+
+	plClient := pl.NewClient(token)
 	ddragonClient := ddragon.NewClient()
 	leagueClient := league.NewClient()
 	wsHub := websocket.NewHub()
@@ -22,7 +34,18 @@ func main() {
 		log.Fatal("cannot create cache: ", err)
 	}
 	proc := processor.NewProcessor(cache)
-	handlerClient := handler.NewHandler(leagueClient, wsHub, proc)
+
+	var targetTeamID int
+	if targetTeam == "" {
+		targetTeamID = 0
+	} else {
+		targetTeamID, err = strconv.Atoi(targetTeam)
+		if err != nil {
+			log.Fatal("cannot parse TARGET_TEAM. Must be a number.")
+		}
+	}
+
+	handlerClient := handler.NewHandler(leagueClient, wsHub, proc, plClient, targetTeamID)
 
 	go wsHub.Run()
 
@@ -38,6 +61,9 @@ func main() {
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(wsHub, w, r)
+	})
+	http.HandleFunc("/pl", func(w http.ResponseWriter, r *http.Request) {
+		handlerClient.HandlePl(w, r)
 	})
 
 	handlerClient.Handle()

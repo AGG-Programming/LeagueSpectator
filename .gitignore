@@ -6,4 +6,4 @@ dist/
 /displayAnalyzer/displayAnalyzer.spec
 /displayAnalyzer/build
 
-.env
+backend/.env

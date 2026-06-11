@@ -75,3 +75,20 @@ type Rune struct {
 	DisplayName string `json:"displayName"`
 	Icon        string `json:"icon"`
 }
+
+type PrimeLeague struct {
+	GroupTitle   string    `json:"groupTitle"`
+	TargetTeam   PrimeTeam `json:"targetTeam"`
+	LeadingTeam  PrimeTeam `json:"leadingTeam"`
+	TrailingTeam PrimeTeam `json:"trailingTeam"`
+	LastTeam     PrimeTeam `json:"lastTeam"`
+}
+
+type PrimeTeam struct {
+	Tag      string `json:"tag"`
+	Wins     int    `json:"wins"`
+	Losses   int    `json:"losses"`
+	Points   int    `json:"points"`
+	Position int    `json:"position"`
+	Img      string `json:"img"`
+}
