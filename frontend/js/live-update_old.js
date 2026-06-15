@@ -1,96 +1,64 @@
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
-const API_URL = 'http://localhost:8080/pl';
-const INTERVAL_ONE_HOUR = 60 * 60 * 1000;
-const RECONNECT_DELAY = 5000; // 5 Sekunden Wartezeit für Reconnects
+const socket = new WebSocket('ws://localhost:8080/ws');
 
-// ============================================================================
-// WEBSOCKET 1: SPECTATOR SERVER (Port 8080)
-// ============================================================================
-function connectSpectatorServer() {
-    const socket = new WebSocket('ws://localhost:8080/ws');
+socket.onopen = () => {
+    console.log('WebSocket-Connection to the Spactator Server established.');
+};
 
-    socket.onopen = () => {
-        console.log('WebSocket-Connection to the Spectator Server established.');
-    };
-
-    socket.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            updateGameMeta(data);
-            updateScoreDisplay(data);
-            updateTimers(data.timers);
-            updatePlayerScoreboard(data);
-        } catch (error) {
-            console.error('Error parsing the WebSocket data:', error);
-        }
-    };
-
-    socket.onclose = () => {
-        console.warn(`Spectator Server connection closed. Retrying in ${RECONNECT_DELAY / 1000}s...`);
-        setTimeout(connectSpectatorServer, RECONNECT_DELAY); // Verbindet sich selbst neu, OHNE die Seite neu zu laden
-    };
-
-    socket.onerror = (error) => {
-        console.error('WebSocket error (Spectator Server):', error);
-    };
-}
-
-// ============================================================================
-// WEBSOCKET 2: PYTHON SCRIPT (Port 8765)
-// ============================================================================
-function connectPythonScript() {
-    const scriptSocket = new WebSocket('ws://localhost:8765/ws');
-
-    scriptSocket.onopen = () => {
-        console.log('WebSocket-Connection for the P-Script to the Spectator Server established.');
-    };
-
-    scriptSocket.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            updateTeamGold(data);
-            updatePlayerGoldDiff(data);
-            updatePlayerCs(data);
-            updatePlayerBounty(data);
-        } catch (error) {
-            console.error('Error parsing the WebSocket for P-Script data:', error);
-        }
-    };
-
-    scriptSocket.onclose = () => {
-        console.warn(`P-Script connection closed. Retrying in ${RECONNECT_DELAY / 1000}s...`);
-        setTimeout(connectPythonScript, RECONNECT_DELAY); // Verbindet sich selbst neu, OHNE die Seite neu zu laden
-    };
-
-    scriptSocket.onerror = (error) => {
-        console.error('WebSocket for P-Script error:', error);
-    };
-}
-
-// ============================================================================
-// PRIME LEAGUE API (HTTP GET / Async-Interval)
-// ============================================================================
-async function fetchAndUpdateStandings() {
+socket.onmessage = (event) => {
     try {
-        const response = await fetch(API_URL);
+        const data = JSON.parse(event.data);
 
-        if (!response.ok) {
-            throw new Error(`API-Fehler: Status ${response.status}`);
-        }
-
-        const data = await response.json();
-        updateStandingsTable(data);
-    } catch (error) {
-        // Schlägt die API fehl, bleibt die Tabelle einfach unverändert und das Script läuft weiter
-        console.error("Error loading Prime League data (Will retry in 1 hour): ", error);
+        updateGameMeta(data);
+        updateScoreDisplay(data);
+        updateTimers(data.timers);
+        updatePlayerScoreboard(data);
+    }   catch (error) {
+        console.error('Error parsing the WebSocket data:', error);
     }
-}
+};
 
-// ============================================================================
-// FORMATTING & HELPERS
-// ============================================================================
+socket.onclose = () => {
+    console.warn('WebSocket-Connection closed. Try to reconnect in 5 seconds...');
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000);
+};
+
+socket.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};
+
+const scriptSocket = new WebSocket('ws://localhost:8765/ws')
+
+scriptSocket.onopen = () => {
+    console.log('WebSocket-Connection for the P-Script to the Spactator Server established.');
+};
+
+scriptSocket.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+
+        updateTeamGold(data);
+        updatePlayerGoldDiff(data);
+        updatePlayerCs(data);
+        updatePlayerBounty(data);
+
+    }   catch (error) {
+        console.error('Error parsing the WebSocket for P-Script data:', error);
+    }
+};
+
+scriptSocket.onclose = () => {
+    console.warn('WebSocket-Connection for P-Script closed. Try to reconnect in 5 seconds...');
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000);
+};
+
+scriptSocket.onerror = (error) => {
+    console.error('WebSocket for P-Script error:', error);
+};
+
 function formatGameTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -101,11 +69,9 @@ function formatGold(goldAmount) {
     return `${(goldAmount / 1000).toFixed(1)}K`;
 }
 
-// ============================================================================
-// DOM RENDERING FUNCTIONS
-// ============================================================================
 function updateGameMeta(data) {
     if (!data || !data.gameTime) return;
+
     const timeEl = document.querySelector('.game-time');
     if (timeEl) {
         timeEl.textContent = formatGameTime(data.gameTime);
@@ -115,15 +81,18 @@ function updateGameMeta(data) {
 function updateScoreDisplay(data) {
     const blue = data.blueTeam;
     const red = data.redTeam;
+
     if (!blue || !red) return;
 
     document.querySelector('.blue-kills').textContent = blue.score;
+
     document.querySelector('.red-kills').textContent = red.score;
 
     if (blue.objectives) {
         blue.objectives.forEach(obj => {
             if (obj.key === 'turrets') document.querySelector('.blue-towers .obj-count').textContent = obj.kills;
             if (obj.key === 'grubs') document.querySelector('.blue-grubs .obj-count').textContent = obj.kills;
+
             if (obj.key === 'dragon') {
                 const blueDrakesContainer = document.querySelector('.blue-drakes');
                 if (blueDrakesContainer) {
@@ -137,6 +106,7 @@ function updateScoreDisplay(data) {
         red.objectives.forEach(obj => {
             if (obj.key === 'turrets') document.querySelector('.red-towers .obj-count').textContent = obj.kills;
             if (obj.key === 'grubs') document.querySelector('.red-grubs .obj-count').textContent = obj.kills;
+
             if (obj.key === 'dragon') {
                 const redDrakesContainer = document.querySelector('.red-drakes');
                 if (redDrakesContainer) {
@@ -146,6 +116,7 @@ function updateScoreDisplay(data) {
         });
     }
 }
+
 
 function updateTimers(timersArray) {
     if (!timersArray || !Array.isArray(timersArray)) return;
@@ -177,9 +148,11 @@ function updateTimers(timersArray) {
     });
 }
 
+
 function updatePlayerScoreboard(data) {
     const bluePlayers = data.blueTeam.players;
     const redPlayers = data.redTeam.players;
+
     if (!bluePlayers || !redPlayers) return;
 
     const rows = document.querySelectorAll('#player-scoreboard .player-row');
@@ -192,12 +165,17 @@ function updatePlayerScoreboard(data) {
         const redPlayerData = redPlayers[i];
 
         const blueCard = row.querySelector('.blue-player');
-        if (blueCard && bluePlayerData) updatePlayerCard(blueCard, bluePlayerData);
+        if (blueCard && bluePlayerData) {
+            updatePlayerCard(blueCard, bluePlayerData);
+        }
 
         const redCard = row.querySelector('.red-player');
-        if (redCard && redPlayerData) updatePlayerCard(redCard, redPlayerData);
+        if (redCard && redPlayerData) {
+            updatePlayerCard(redCard, redPlayerData);
+        }
     }
 }
+
 
 function updatePlayerCard(cardEl, p) {
     const champImg = cardEl.querySelector('.champ-img');
@@ -219,6 +197,7 @@ function updatePlayerCard(cardEl, p) {
         const deathOverlay = cardEl.querySelector('.death-timer-overlay');
         const hpBar = cardEl.querySelector('.hp-bar');
         const manaBar = cardEl.querySelector('.mana-bar');
+        const bountyTag = cardEl.querySelector('.bounty-tag');
 
         if (p.isDead) {
             avatarBox.classList.add('dead');
@@ -226,7 +205,9 @@ function updatePlayerCard(cardEl, p) {
                 hpBar.style.width = '0%';
                 hpBar.classList.add('dead-bar');
             }
-            if (manaBar) manaBar.style.width = '0%';
+            if (manaBar) {
+                manaBar.style.width = '0%'
+            }
             if (deathOverlay) {
                 deathOverlay.classList.remove('hidden');
                 deathOverlay.innerHTML = `<span>${Math.floor(p.respawnTimer)}</span>`;
@@ -235,9 +216,11 @@ function updatePlayerCard(cardEl, p) {
             avatarBox.classList.remove('dead');
             if (hpBar) {
                 hpBar.style.width = '100%';
-                hpBar.classList.remove('dead-bar');
+                hpBar.classList.remove('dead-bar')
             }
-            if (manaBar) manaBar.style.width = '100%';
+            if (manaBar) {
+                manaBar.style.width = '100%';
+            }
             if (deathOverlay) deathOverlay.classList.add('hidden');
         }
     }
@@ -251,9 +234,11 @@ function updatePlayerCard(cardEl, p) {
     }
 
     const summSlots = cardEl.querySelectorAll('.summs-container .summ-slot');
-    if (summSlots.length >= 2 && p.spells && p.spells.length >= 2) {
-        summSlots[0].innerHTML = `<img src="${p.spells[0].icon}" alt="${p.spells[0].displayName}">`;
-        summSlots[1].innerHTML = `<img src="${p.spells[1].icon}" alt="${p.spells[1].displayName}">`;
+    if (summSlots.length >= 2) {
+        if (p.spells.length >= 2) {
+            summSlots[0].innerHTML = `<img src="${p.spells[0].icon}" alt="${p.spells[0].displayName}">`;
+            summSlots[1].innerHTML = `<img src="${p.spells[1].icon}" alt="${p.spells[1].displayName}">`;
+        }
     }
 
     const itemSlots = cardEl.querySelectorAll('.items-line .item-slot');
@@ -271,14 +256,15 @@ function updatePlayerCard(cardEl, p) {
 
             slot.className = 'item-slot';
             slot.innerHTML = `<img src="${item.icon}" alt="${item.id}">`;
+
             if (item.consumable) {
-                slot.innerHTML += `<span class="item-count">${item.count}</span>`;
+                slot.innerHTML += `<span class="item-count">${item.count}</span>`
             }
         });
     }
 
     const wardSlot = cardEl.querySelector('.ward-slot');
-    if (wardSlot && p.items) {
+    if (wardSlot) {
         const wardItem = p.items.find(item => item.slot === 6);
         if (wardItem) {
             wardSlot.classList.remove("empty-slot");
@@ -292,25 +278,35 @@ function updatePlayerCard(cardEl, p) {
     }
 
     const ultSlot = cardEl.querySelector('.ult-slot');
-    if (ultSlot && p.ultIcon) {
-        ultSlot.innerHTML = `<img src="${p.ultIcon}" alt="U">`;
-        if (p.level >= 6) {
-            ultSlot.classList.remove("unlearned");
-            ultSlot.classList.add("ready");
-        } else {
-            ultSlot.classList.remove("ready");
-            ultSlot.classList.add("unlearned");
+    if (ultSlot) {
+        if (p.ultIcon) {
+            ultSlot.innerHTML = `<img src="${p.ultIcon}" alt="U">`;
+            if (p.level >= 6) {
+                ultSlot.classList.remove("unlearned");
+                ultSlot.classList.add("ready");
+            } else {
+                ultSlot.classList.remove("ready");
+                ultSlot.classList.add("unlearned");
+            }
         }
     }
 }
 
+
+
+//-----------------------------WebSocket P-Script------------------------------------#
+
 function updateTeamGold(data) {
-    if (!data || !data.team_gold) return;
     const blue_gold = data.team_gold.blue_team;
     const red_gold = data.team_gold.red_team;
 
-    document.querySelector('.blue-side .team-gold').textContent = blue_gold ? formatGold(blue_gold) : "0.0K";
-    document.querySelector('.red-side .team-gold').textContent = red_gold ? formatGold(red_gold) : "0.0K";
+    if (blue_gold) {
+        document.querySelector('.blue-side .team-gold').textContent = formatGold(blue_gold);
+    } else document.querySelector('.blue-side .team-gold').textContent = "0.0K";
+
+    if (red_gold) {
+        document.querySelector('.red-side .team-gold').textContent = formatGold(red_gold);
+    } else document.querySelector('.red-side .team-gold').textContent = "0.0K";
 
     const goldDiff = blue_gold - red_gold;
     const blueLeadEl = document.querySelector('.blue-side .gold-lead');
@@ -337,9 +333,10 @@ function updateTeamGold(data) {
 }
 
 function updatePlayerGoldDiff(data) {
-    if (!data || !data.gold || !data.gold.blue || !data.gold.red) return;
     const bluePlayers = data.gold.blue;
     const redPlayers = data.gold.red;
+
+    if (!bluePlayers || !redPlayers) return;
 
     const rows = document.querySelectorAll('#player-scoreboard .player-row');
 
@@ -349,14 +346,23 @@ function updatePlayerGoldDiff(data) {
 
         const bPlayer = `b${i+1}`;
         const rPlayer = `r${i+1}`;
-        const bluePlayerGold = parseInt(bluePlayers[bPlayer], 10) || 0;
-        const redPlayerGold = parseInt(redPlayers[rPlayer], 10) || 0;
+        const blueGold = bluePlayers[bPlayer];
+        const redGold = redPlayers[rPlayer];
+        console.log("blueGold: ",blueGold);
+        console.log("redGold: ",redGold);
+        const bluePlayerGold = parseInt(blueGold, 10);
+        const redPlayerGold = parseInt(redGold, 10);
+        console.log("blueGold: ",bluePlayerGold);
+        console.log("redGold: ",redPlayerGold);
 
         const goldDiff = bluePlayerGold - redPlayerGold;
         const LeadEl = row.querySelector('.lane-gold-diff');
+        console.log("gold diff: ", goldDiff);
 
         if (LeadEl) {
             const amountEl = LeadEl.querySelector('.diff-amount');
+            
+            // 1. Erstmal alle Lead-Klassen komplett säubern
             LeadEl.classList.remove('blue-lead', 'red-lead', 'no-lead');
 
             if (goldDiff > 0) {
@@ -374,9 +380,10 @@ function updatePlayerGoldDiff(data) {
 }
 
 function updatePlayerCs(data) {
-    if (!data || !data.creep || !data.creep.blue || !data.creep.red) return;
     const bluePlayers = data.creep.blue;
     const redPlayers = data.creep.red;
+
+    if (!bluePlayers || !redPlayers) return;
 
     const rows = document.querySelectorAll('#player-scoreboard .player-row');
 
@@ -386,25 +393,28 @@ function updatePlayerCs(data) {
 
         const bPlayer = `b${i+1}`;
         const rPlayer = `r${i+1}`;
+        const bluePlayerData = bluePlayers[bPlayer];
+        const redPlayerData = redPlayers[rPlayer];
 
         const blueCard = row.querySelector('.blue-player');
-        if (blueCard && bluePlayers[bPlayer] !== undefined) {
+        if (blueCard && bluePlayerData) {
             const csEl = blueCard.querySelector('.player-cs');
-            if (csEl) csEl.textContent = bluePlayers[bPlayer];
+            if (csEl) csEl.textContent = bluePlayerData;
         }
 
         const redCard = row.querySelector('.red-player');
-        if (redCard && redPlayers[rPlayer] !== undefined) {
+        if (redCard && redPlayerData) {
             const csEl = redCard.querySelector('.player-cs');
-            if (csEl) csEl.textContent = redPlayers[rPlayer];
+            if (csEl) csEl.textContent = redPlayerData;
         }
     }
 }
 
 function updatePlayerBounty(data) {
-    if (!data || !data.bounty || !data.bounty.blue || !data.bounty.red) return;
     const bluePlayers = data.bounty.blue;
     const redPlayers = data.bounty.red;
+
+    if (!bluePlayers || !redPlayers) return;
 
     const rows = document.querySelectorAll('#player-scoreboard .player-row');
 
@@ -414,15 +424,16 @@ function updatePlayerBounty(data) {
 
         const bPlayer = `b${i+1}`;
         const rPlayer = `r${i+1}`;
+        const bluePlayerBounty = bluePlayers[bPlayer];
+        const redPlayerBounty = redPlayers[rPlayer];
 
         const blueCard = row.querySelector('.blue-player');
         if (blueCard) {
             const bountyEl = blueCard.querySelector('.bounty-tag');
             if (bountyEl) {
-                const bounty = bluePlayers[bPlayer] || 0;
-                if (bounty > 0) {
+                if (bluePlayerBounty > 0) {
                     bountyEl.classList.remove('hidden');
-                    bountyEl.textContent = bounty;
+                    bountyEl.textContent = bluePlayerBounty;
                 } else {
                     bountyEl.classList.add('hidden');
                     bountyEl.textContent = "";
@@ -434,10 +445,9 @@ function updatePlayerBounty(data) {
         if (redCard) {
             const bountyEl = redCard.querySelector('.bounty-tag');
             if (bountyEl) {
-                const bounty = redPlayers[rPlayer] || 0;
-                if (bounty > 0) {
+                if (redPlayerBounty > 0) {
                     bountyEl.classList.remove('hidden');
-                    bountyEl.textContent = bounty;
+                    bountyEl.textContent = redPlayerBounty;
                 } else {
                     bountyEl.classList.add('hidden');
                     bountyEl.textContent = "";
@@ -447,8 +457,30 @@ function updatePlayerBounty(data) {
     }
 }
 
+
+
+//-----------------------------PL API------------------------------------#
+
+
+const API_URL = 'http://localhost:8080/pl';
+const INTERVAL_ONE_HOUR = 60 * 60 * 1000; //min * sec * ms
+
+async function fetchAndUpdateStandings() {
+    try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error(`API-Fehler: Status ${response.status}`);
+        }
+
+        const data = await response.json();
+        updateStandingsTable(data);
+    } catch (error) {
+        console.error("Error loading Prime Leage data: ", error);
+    }
+}
+
 function updateStandingsTable(data) {
-    if (!data) return;
     if (data.groupTitle) {
         const headerTitle = document.querySelector('.box-header h3');
         if (headerTitle) headerTitle.textContent = data.groupTitle.toUpperCase();
@@ -458,12 +490,13 @@ function updateStandingsTable(data) {
     if (!tbody) return;
 
     tbody.innerHTML = '';
+
     const teamsToRender = [];
 
     function tryAddTeam(teamData, specialClass = '') {
         if (teamData && teamData.tag) {
             teamsToRender.push({
-                position: parseInt(teamData.position, 10) || 0,
+                position: teamData.position,
                 tag: teamData.tag,
                 img: teamData.img || 'assets/images/Logos/square_default.jpg',
                 wins: teamData.wins,
@@ -482,12 +515,20 @@ function updateStandingsTable(data) {
 
     if (data.lastTeam && data.lastTeam.tag) {
         const lastTeamPos = parseInt(data.lastTeam.position, 10);
+        
+        // Wir schauen nach, welches Team aktuell das unterste in unserer Liste ist
         const teamAbove = teamsToRender[teamsToRender.length - 1];
+
+        // Falls ein Team darüber existiert und die Differenz der Plätze größer als 1 ist -> Gap merken
         const needsGap = teamAbove ? (lastTeamPos - teamAbove.position > 1) : false;
 
+        // Jetzt fügen wir das lastTeam regulär unserer Render-Liste hinzu
         tryAddTeam(data.lastTeam, 'enemy-team');
         
+        // Da wir das lastTeam gerade gepusht haben, müssen wir es für das korrekte HTML-Rendering 
+        // temporär markieren, wenn davor das Gap kommen soll.
         if (needsGap) {
+            // Wir hängen eine Flag an das letzte Team an
             teamsToRender[teamsToRender.length - 1].insertGapBefore = true;
         }
     }
@@ -498,12 +539,14 @@ function updateStandingsTable(data) {
         if (team.insertGapBefore) {
             const gapRow = document.createElement('tr');
             gapRow.classList.add('table-gap');
-            gapRow.innerHTML = `<td colspan="4"><div></div></td>`;
+            gapRow.innerHTML = `<td colspan="4"><div></div></td>`; // Falls du im HTML colspan="5" nutzt, hier auf "5" ändern
             tbody.appendChild(gapRow);
         }
 
         const tr = document.createElement('tr');
-        if (team.cssClass) tr.classList.add(team.cssClass);
+        if (team.cssClass) {
+            tr.classList.add(team.cssClass);
+        }
 
         tr.innerHTML = `
             <td class="pos-cell">${team.position}</td>
@@ -530,7 +573,7 @@ function updateStandingsTable(data) {
                 <div class="next-game-container">
                     <span class="next-game-label">Next Game:</span>
                     <div class="next-game-team">
-                        <img src="${data.nextGame.img || 'assets/images/Logos/square_default.jpg'}" alt="Enemy Logo" class="team-logo">
+                        <img src="${data.nextGame.img || 'assets/images/Logos/square_default.jpg'}" alt="Enemy Logog" class="team-logo">
                         <span class="name-text">${data.nextGame.tag || 'TBD'}</span>
                     </div>
                     <span class="next-game-date">${data.nextGame.date || 'open'}</span>
@@ -539,6 +582,8 @@ function updateStandingsTable(data) {
         `;
         tbody.appendChild(nextGameRow);
     } else {
+        // Fallback, falls das Backend die Next-Game-Info (noch) nicht im JSON hat
+        // Nutzen wir einfach das LastTeam / SüFü als Hardcode-Anzeige aus deiner HTML
         const fallbackEnemy = data.lastTeam || { tag: "SüFü", img: "https://cdn1.heartbase.gg/img/themes/general/square_default.jpg" };
         const nextGameRow = document.createElement('tr');
         nextGameRow.classList.add('next-game-row');
@@ -558,18 +603,14 @@ function updateStandingsTable(data) {
     }
 }
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. WebSockets initialisieren
-    connectSpectatorServer();
-    connectPythonScript();
 
-    // 2. Prime League HTTP API initialisieren & Interval starten
+document.addEventListener('DOMContentLoaded', () => {
     fetchAndUpdateStandings();
+
     setInterval(fetchAndUpdateStandings, INTERVAL_ONE_HOUR);
-});
+})
+
+
 
 
 
