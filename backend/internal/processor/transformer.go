@@ -93,30 +93,40 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int) (*mod
 			Position: teams.Target.Position,
 			Img:      teams.Target.Img,
 		},
-		LeadingTeam: models.PrimeTeam{
+	}
+
+	if teams.Leading.TeamID != 0 {
+		output.LeadingTeam = &models.PrimeTeam{
 			Tag:      teams.Leading.Tag,
 			Wins:     teams.Leading.Wins,
 			Losses:   teams.Leading.Losses,
 			Points:   teams.Leading.Points,
 			Position: teams.Leading.Position,
 			Img:      teams.Leading.Img,
-		},
-		TrailingTeam: models.PrimeTeam{
+		}
+	}
+
+	if teams.Trailing.TeamID != 0 {
+		output.TrailingTeam = &models.PrimeTeam{
 			Tag:      teams.Trailing.Tag,
 			Wins:     teams.Trailing.Wins,
 			Losses:   teams.Trailing.Losses,
 			Points:   teams.Trailing.Points,
 			Position: teams.Trailing.Position,
 			Img:      teams.Trailing.Img,
-		},
-		LastTeam: models.PrimeTeam{
+		}
+	}
+
+	if teams.Last.TeamID != 0 && teams.Last.TeamID != targetID {
+		output.LastTeam = &models.PrimeTeam{
 			Tag:      teams.Last.Tag,
 			Wins:     teams.Last.Wins,
 			Losses:   teams.Last.Losses,
 			Points:   teams.Last.Points,
 			Position: teams.Last.Position,
 			Img:      teams.Last.Img,
-		},
+		}
 	}
+
 	return &output, nil
 }

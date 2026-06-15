@@ -77,11 +77,11 @@ type Rune struct {
 }
 
 type PrimeLeague struct {
-	GroupTitle   string    `json:"groupTitle"`
-	TargetTeam   PrimeTeam `json:"targetTeam"`
-	LeadingTeam  PrimeTeam `json:"leadingTeam"`
-	TrailingTeam PrimeTeam `json:"trailingTeam"`
-	LastTeam     PrimeTeam `json:"lastTeam"`
+	GroupTitle   string     `json:"groupTitle"`
+	TargetTeam   PrimeTeam  `json:"targetTeam"`
+	LeadingTeam  *PrimeTeam `json:"leadingTeam,omitempty"`
+	TrailingTeam *PrimeTeam `json:"trailingTeam,omitempty"`
+	LastTeam     *PrimeTeam `json:"lastTeam,omitempty"`
 }
 
 type PrimeTeam struct {
