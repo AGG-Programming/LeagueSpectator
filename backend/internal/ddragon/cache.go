@@ -40,6 +40,9 @@ func NewCache(client *Client) (*Cache, error) {
 		champs = append(champs, k)
 	}
 	cache.ults, err = client.GetUlts(version, champs)
+	if err != nil {
+		return nil, err
+	}
 
 	return cache, nil
 }
