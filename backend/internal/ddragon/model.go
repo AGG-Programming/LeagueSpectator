@@ -2,7 +2,8 @@ package ddragon
 
 type ChampionResponse struct {
 	Data map[string]struct {
-		Name  string `json:"id"`
+		Name  string `json:"name"`
+		ID    string `json:"id"`
 		Image struct {
 			Full string `json:"full"`
 		} `json:"image"`
