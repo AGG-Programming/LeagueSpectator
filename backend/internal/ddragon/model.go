@@ -2,7 +2,7 @@ package ddragon
 
 type ChampionResponse struct {
 	Data map[string]struct {
-		Name  string `json:"name"`
+		Name  string `json:"id"`
 		Image struct {
 			Full string `json:"full"`
 		} `json:"image"`
@@ -44,4 +44,14 @@ type RuneSlot struct {
 type Rune struct {
 	ID   int    `json:"id"`
 	Icon string `json:"icon"`
+}
+
+type ChampionDataResponse struct {
+	Data map[string]struct {
+		Spells []struct {
+			Image struct {
+				Full string `json:"full"`
+			} `json:"image"`
+		} `json:"spells"`
+	} `json:"data"`
 }
