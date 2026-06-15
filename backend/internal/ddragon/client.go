@@ -51,9 +51,10 @@ func (c *Client) GetChampions(version string) (map[string]string, error) {
 	if err = json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		return nil, err
 	}
+
 	champions := make(map[string]string)
 	for _, champ := range payload.Data {
-		champions[champ.Name] = fmt.Sprintf("%s/cdn/%s/img/champion/%s", c.baseUrl, version, champ.Image.Full)
+		champions[champ.ID] = fmt.Sprintf("%s/cdn/%s/img/champion/%s", c.baseUrl, version, champ.Image.Full)
 	}
 	return champions, nil
 }
@@ -126,7 +127,6 @@ func (c *Client) GetUlts(version string, champs []string) (map[string]string, er
 	ults := make(map[string]string)
 
 	for _, champ := range champs {
-		// 1. Construct the URL for the individual champion's JSON data
 		url := fmt.Sprintf("%s/cdn/%s/data/en_US/champion/%s.json", c.baseUrl, version, champ)
 
 		resp, err := http.Get(url)
@@ -139,15 +139,13 @@ func (c *Client) GetUlts(version string, champs []string) (map[string]string, er
 			return nil, fmt.Errorf("failed to get valid response for %s, status: %d", champ, resp.StatusCode)
 		}
 
-		// 2. Parse the JSON response
 		var data ChampionDataResponse
 		err = json.NewDecoder(resp.Body).Decode(&data)
-		resp.Body.Close() // Close the body as soon as we are done decoding
+		resp.Body.Close()
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode JSON for %s: %w", champ, err)
 		}
 
-		// 3. Extract the ultimate image (index 3 in the spells array)
 		champData, exists := data.Data[champ]
 		if !exists || len(champData.Spells) < 4 {
 			return nil, fmt.Errorf("unexpected data structure or missing ultimate for %s", champ)
@@ -155,7 +153,6 @@ func (c *Client) GetUlts(version string, champs []string) (map[string]string, er
 
 		ultImageName := champData.Spells[3].Image.Full
 
-		// 4. Save the full image URL to the map
 		ults[champ] = fmt.Sprintf("%s/cdn/%s/img/spell/%s", c.baseUrl, version, ultImageName)
 	}
 
