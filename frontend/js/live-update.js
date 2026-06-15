@@ -517,10 +517,11 @@ function updateStandingsTable(data) {
         tbody.appendChild(tr);
     });
 
-    const gapRow = document.createElement('tr');
+    /*const gapRow = document.createElement('tr');
     gapRow.classList.add('table-gap');
     gapRow.innerHTML = `<td colspan="4"><div></div></td>`;
     tbody.appendChild(gapRow);
+    */
 
     if (data.nextGame) {
         const nextGameRow = document.createElement('tr');
