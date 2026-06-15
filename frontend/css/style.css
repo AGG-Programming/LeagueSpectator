@@ -27,7 +27,7 @@ Standings Box
     bottom: 4px;
     left: 4px;
     width: 300px;
-    height: 250px;
+    height: 260px;
     background: #001D1D;
     border: 2px solid #7C8C9B;
     border-radius: 4px;
@@ -138,6 +138,46 @@ Standings Box
     padding-left: 1px;
 }
 
+
+
+.next-game-gap td {
+    padding: 10px 0 6px 0;
+}
+.next-game-gap div {
+    width: 100%;
+    border-top: 1px solid #7C8C9B;
+}
+
+.next-game-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.next-game-label {
+    font-weight: bold;
+    color: #39A29E !important;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.next-game-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.next-game-date {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(124, 140, 155, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
 
 /*---------------------------------------------------------------------------------------------
 Score Display
