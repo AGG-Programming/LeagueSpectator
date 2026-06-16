@@ -40,23 +40,25 @@ func (c *Client) GetLatestPatchVersion() (string, error) {
 	return versions[0], nil
 }
 
-func (c *Client) GetChampions(version string) (map[string]string, error) {
+func (c *Client) GetChampions(version string) (map[string]string, []string, error) {
 	resp, err := c.httpClient.Get(c.baseUrl + "/cdn/" + version + "/data/en_US/champion.json")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	var payload ChampionResponse
 	if err = json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	champions := make(map[string]string)
+	champIDs := make([]string, 0, len(payload.Data))
 	for _, champ := range payload.Data {
-		champions[champ.ID] = fmt.Sprintf("%s/cdn/%s/img/champion/%s", c.baseUrl, version, champ.Image.Full)
+		champions[champ.Name] = fmt.Sprintf("%s/cdn/%s/img/champion/%s", c.baseUrl, version, champ.Image.Full)
+		champIDs = append(champIDs, champ.ID)
 	}
-	return champions, nil
+	return champions, champIDs, nil
 }
 
 func (c *Client) GetRunes(version string) (map[int]string, error) {
@@ -123,37 +125,37 @@ func (c *Client) GetSpells(version string) (map[string]string, error) {
 	return spells, nil
 }
 
-func (c *Client) GetUlts(version string, champs []string) (map[string]string, error) {
+func (c *Client) GetUlts(version string, champIDs []string) (map[string]string, error) {
 	ults := make(map[string]string)
 
-	for _, champ := range champs {
-		url := fmt.Sprintf("%s/cdn/%s/data/en_US/champion/%s.json", c.baseUrl, version, champ)
+	for _, champID := range champIDs {
+		url := fmt.Sprintf("%s/cdn/%s/data/en_US/champion/%s.json", c.baseUrl, version, champID)
 
 		resp, err := http.Get(url)
 		if err != nil {
-			return nil, fmt.Errorf("failed to fetch data for %s: %w", champ, err)
+			return nil, fmt.Errorf("failed to fetch data for %s: %w", champID, err)
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			resp.Body.Close()
-			return nil, fmt.Errorf("failed to get valid response for %s, status: %d", champ, resp.StatusCode)
+			return nil, fmt.Errorf("failed to get valid response for %s, status: %d", champID, resp.StatusCode)
 		}
 
 		var data ChampionDataResponse
 		err = json.NewDecoder(resp.Body).Decode(&data)
 		resp.Body.Close()
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode JSON for %s: %w", champ, err)
+			return nil, fmt.Errorf("failed to decode JSON for %s: %w", champID, err)
 		}
 
-		champData, exists := data.Data[champ]
+		champData, exists := data.Data[champID]
 		if !exists || len(champData.Spells) < 4 {
-			return nil, fmt.Errorf("unexpected data structure or missing ultimate for %s", champ)
+			return nil, fmt.Errorf("unexpected data structure or missing ultimate for %s", champID)
 		}
 
 		ultImageName := champData.Spells[3].Image.Full
 
-		ults[champ] = fmt.Sprintf("%s/cdn/%s/img/spell/%s", c.baseUrl, version, ultImageName)
+		ults[champData.Name] = fmt.Sprintf("%s/cdn/%s/img/spell/%s", c.baseUrl, version, ultImageName)
 	}
 
 	return ults, nil

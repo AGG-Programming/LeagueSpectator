@@ -15,8 +15,9 @@ func NewCache(client *Client) (*Cache, error) {
 		return nil, err
 	}
 	cache := &Cache{}
+	champIDs := make([]string, 0)
 
-	cache.champions, err = client.GetChampions(version)
+	cache.champions, champIDs, err = client.GetChampions(version)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +36,8 @@ func NewCache(client *Client) (*Cache, error) {
 	if err != nil {
 		return nil, err
 	}
-	champs := make([]string, 0, len(cache.champions))
-	for k := range cache.champions {
-		champs = append(champs, k)
-	}
-	cache.ults, err = client.GetUlts(version, champs)
+
+	cache.ults, err = client.GetUlts(version, champIDs)
 	if err != nil {
 		return nil, err
 	}
