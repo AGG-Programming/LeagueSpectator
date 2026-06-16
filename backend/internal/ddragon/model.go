@@ -49,6 +49,7 @@ type Rune struct {
 
 type ChampionDataResponse struct {
 	Data map[string]struct {
+		Name   string `json:"name"`
 		Spells []struct {
 			Image struct {
 				Full string `json:"full"`
