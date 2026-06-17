@@ -18,8 +18,8 @@ func NewDbPool(ctx context.Context, connStr string) (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer pool.Close()
 	if err = pool.Ping(ctx); err != nil {
+		pool.Close()
 		return nil, err
 	}
 	log.Println("Connected to database")
@@ -28,7 +28,7 @@ func NewDbPool(ctx context.Context, connStr string) (*pgxpool.Pool, error) {
 }
 
 func GetUserByKey(ctx context.Context, pool *pgxpool.Pool, key string) (User, error) {
-	query := `SELECT user FROM api_keys WHERE key = $1`
+	query := `SELECT id, key, active FROM api_keys WHERE key = $1`
 
 	var u User
 	err := pool.QueryRow(ctx, query, key).Scan(&u.ID, &u.ApiKey, &u.Active)
