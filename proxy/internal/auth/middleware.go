@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/AGG-Programming/ProxyServer/internal/store"
@@ -15,6 +16,7 @@ func ApiKeyMiddleware(next http.Handler, dbPool *pgxpool.Pool, ctx context.Conte
 		user, err := store.GetUserByKey(ctx, dbPool, apiKey)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Println(err.Error())
 			return
 		}
 

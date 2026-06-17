@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,6 +22,7 @@ func NewDbPool(ctx context.Context, connStr string) (*pgxpool.Pool, error) {
 	if err = pool.Ping(ctx); err != nil {
 		return nil, err
 	}
+	log.Println("Connected to database")
 
 	return pool, nil
 }
