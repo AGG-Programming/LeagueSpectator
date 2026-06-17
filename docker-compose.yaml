@@ -12,7 +12,7 @@ services:
       - coolify
     labels:
       - traefik.enable=true
-      - traefik.http.routers.proxy.rule=Host(`api.yourdomain.com`)
+      - traefik.http.routers.proxy.rule=Host(`http://fcsww88ggow0s8ogc4w440ss.91.99.177.120.sslip.io`)
       - traefik.http.routers.proxy.entrypoints=web
       - traefik.http.routers.proxy.tls.certresolver=letsencrypt
       - traefik.http.services.proxy.loadbalancer.server.port=8080
