@@ -1,16 +1,6 @@
 version: "3.8"
 
 services:
-  traefik:
-    image: traefik:v3.7
-    command:
-      - --providers.file.filename=/etc/traefik/dynamic.yml
-      - --entrypoints.web.address=:80
-    ports:
-      - "80:80"
-    volumes:
-      - ./dynamic.yml:/etc/traefik/dynamic.yml
-
   proxy-server:
     build: ./proxy
     container_name: proxy-server
@@ -18,9 +8,15 @@ services:
     environment:
       UPSTREAM_TOKEN: ${UPSTREAM_TOKEN}
       DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - coolify-infra
     labels:
       - traefik.enable=true
       - traefik.http.routers.proxy.rule=Host(`api.yourdomain.com`)
       - traefik.http.routers.proxy.entrypoints=web
       - traefik.http.routers.proxy.tls.certresolver=letsencrypt
       - traefik.http.services.proxy.loadbalancer.server.port=8080
+
+networks:
+  coolify-infra:
+    external: true
