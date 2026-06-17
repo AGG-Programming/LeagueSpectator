@@ -7,3 +7,4 @@ dist/
 /displayAnalyzer/build
 
 backend/.env
+proxy/.env

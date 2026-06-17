@@ -9,9 +9,11 @@ import (
 	"github.com/AGG-Programming/ProxyServer/internal/auth"
 	"github.com/AGG-Programming/ProxyServer/internal/proxy"
 	"github.com/AGG-Programming/ProxyServer/internal/store"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	_ = godotenv.Load()
 	ctx := context.Background()
 
 	plBearer := os.Getenv("UPSTREAM_TOKEN")
@@ -22,6 +24,9 @@ func main() {
 	}
 
 	dbPool, err := store.NewDbPool(ctx, connStr)
+	if err != nil {
+		log.Fatal("cannot create db pool: ", err)
+	}
 
 	mux := http.NewServeMux()
 
