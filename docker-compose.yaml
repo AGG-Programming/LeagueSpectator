@@ -8,6 +8,7 @@ services:
     environment:
       UPSTREAM_TOKEN: ${UPSTREAM_TOKEN}
       DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: ${BASE_URL}
     networks:
       - coolify
     labels:

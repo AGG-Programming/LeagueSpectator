@@ -2,11 +2,13 @@ package proxy
 
 import (
 	"io"
+	"log"
 	"net/http"
 )
 
-func ProxyRequest(w http.ResponseWriter, r *http.Request, plBearer string) {
-	upstreamURL := "https://test.com" + r.URL.Path //TODO: replace url loaded from env
+func ProxyRequest(w http.ResponseWriter, r *http.Request, plBearer string, baseURL string) {
+	upstreamURL := baseURL + r.URL.Path
+	log.Printf("Proxying request to %s", upstreamURL)
 
 	req, err := http.NewRequestWithContext(r.Context(), r.Method, upstreamURL, r.Body)
 	if err != nil {
