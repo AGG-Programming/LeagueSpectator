@@ -1,0 +1,19 @@
+http:
+  routers:
+    api:
+      rule: "PathPrefix(`/api`)"
+      service: target-api
+      middlewares:
+        - auth-header
+
+  middlewares:
+    auth-header:
+      headers:
+        customRequestHeaders:
+          Authorization: "Bearer ${AUTH_TOKEN}"
+
+  services:
+    target-api:
+      loadBalancer:
+        servers:
+          - url: ""
