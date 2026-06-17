@@ -4,24 +4,9 @@ services:
   traefik:
     image: traefik:v3.7
     command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
     ports:
       - "80:80"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./dynamic_config:/etc/traefik/dynamic:ro
-    labels:
-      - "traefik.http.middlewares.api-auth.forwardauth.address=http://auth-validator:8081/validate"
-      - "traefik.http.middlewares.api-auth.forwardauth.authResponseHeaders=Authorization"
-
-  auth-validator:
-    build: ./authService
-    ports:
-      - "8081"
-    labels:
-      - "traefik.enable=true"
+      - ./dynamic.yml:/etc/traefik/dynamic.yml
