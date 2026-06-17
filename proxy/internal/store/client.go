@@ -26,7 +26,7 @@ func NewDbPool(ctx context.Context, connStr string) (*pgxpool.Pool, error) {
 }
 
 func GetUserByKey(ctx context.Context, pool *pgxpool.Pool, key string) (User, error) {
-	query := `SELECT user FROM api_keys WHERE api_key = $1`
+	query := `SELECT user FROM api_keys WHERE key = $1`
 
 	var u User
 	err := pool.QueryRow(ctx, query, key).Scan(&u.ID, &u.ApiKey, &u.Active)
