@@ -9,7 +9,7 @@ services:
       UPSTREAM_TOKEN: ${UPSTREAM_TOKEN}
       DATABASE_URL: ${DATABASE_URL}
     networks:
-      - coolify-infra
+      - coolify
     labels:
       - traefik.enable=true
       - traefik.http.routers.proxy.rule=Host(`api.yourdomain.com`)
@@ -18,5 +18,5 @@ services:
       - traefik.http.services.proxy.loadbalancer.server.port=8080
 
 networks:
-  coolify-infra:
+  coolify:
     external: true
