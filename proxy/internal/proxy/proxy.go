@@ -4,10 +4,22 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func ProxyRequest(w http.ResponseWriter, r *http.Request, plBearer string, baseURL string) {
-	upstreamURL := baseURL + r.URL.Path
+	proxyPath := strings.TrimPrefix(r.URL.Path, "/api/pl")
+	if proxyPath == "" {
+		proxyPath = "/"
+	}
+	if !strings.HasPrefix(proxyPath, "/") {
+		proxyPath = "/" + proxyPath
+	}
+
+	upstreamURL := strings.TrimRight(baseURL, "/") + proxyPath
+	if r.URL.RawQuery != "" {
+		upstreamURL += "?" + r.URL.RawQuery
+	}
 	log.Printf("Proxying request to %s", upstreamURL)
 
 	req, err := http.NewRequestWithContext(r.Context(), r.Method, upstreamURL, r.Body)
