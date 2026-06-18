@@ -23,8 +23,9 @@ func main() {
 	plBearer := os.Getenv("UPSTREAM_TOKEN")
 	connStr := os.Getenv("DATABASE_URL")
 	baseURL := os.Getenv("BASE_URL")
-	if plBearer == "" || connStr == "" || baseURL == "" {
-		log.Fatal("PRIME_LEAGUE_BEARER or DATABASE_URL or BASE_URL is not set")
+	pepper := os.Getenv("API_KEY_PEPPER")
+	if plBearer == "" || connStr == "" || baseURL == "" || pepper == "" {
+		log.Fatal("PRIME_LEAGUE_BEARER, DATABASE_URL, BASE_URL or API_KEY_PEPPER is not set")
 	}
 
 	dbPool, err := store.NewDbPool(ctx, connStr)
@@ -37,7 +38,7 @@ func main() {
 
 	protectedProxyHandler := auth.ApiKeyMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		proxy.ProxyRequest(w, r, plBearer, baseURL)
-	}), dbPool)
+	}), dbPool, pepper)
 
 	mux.Handle("/api/pl/", protectedProxyHandler)
 

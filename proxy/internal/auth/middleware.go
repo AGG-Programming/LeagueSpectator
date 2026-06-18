@@ -9,11 +9,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ApiKeyMiddleware(next http.Handler, dbPool *pgxpool.Pool) http.Handler {
+func ApiKeyMiddleware(next http.Handler, dbPool *pgxpool.Pool, pepper string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiKey := r.Header.Get("X-Api-Key")
-		user, err := store.GetUserByKey(r.Context(), dbPool, apiKey)
+		if apiKey == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		user, err := store.GetUserByKey(r.Context(), dbPool, apiKey, pepper)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			log.Println(err.Error())
