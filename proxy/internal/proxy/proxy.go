@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -20,7 +19,6 @@ func ProxyRequest(w http.ResponseWriter, r *http.Request, plBearer string, baseU
 	if r.URL.RawQuery != "" {
 		upstreamURL += "?" + r.URL.RawQuery
 	}
-	log.Printf("Proxying request to %s", upstreamURL)
 
 	req, err := http.NewRequestWithContext(r.Context(), r.Method, upstreamURL, r.Body)
 	if err != nil {

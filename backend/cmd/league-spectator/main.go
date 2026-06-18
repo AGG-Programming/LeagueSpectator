@@ -19,10 +19,10 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	token := os.Getenv("PRIME_LEAGUE_API")
+	token := os.Getenv("TOKEN")
 	targetTeam := os.Getenv("TARGET_TEAM")
 	if token == "" || targetTeam == "" {
-		log.Printf("PRIME_LEAGUE_API or TARGET_TEAM is not set. Will not be able to fetch data from Prime League.")
+		log.Printf("TOKEN or TARGET_TEAM is not set. Will not be able to fetch data from Prime League.")
 	}
 
 	plClient := pl.NewClient(token)

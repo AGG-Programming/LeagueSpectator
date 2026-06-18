@@ -20,7 +20,7 @@ func NewClient(token string) *Client {
 		httpClient: &http.Client{
 			Timeout: 2 * time.Second,
 		},
-		baseUrl: "https://api.heartbase.gg",
+		baseUrl: "https://api.alwaysgoodgames.de/api/pl",
 		token:   token,
 	}
 }
@@ -39,8 +39,7 @@ func (c *Client) GetLeagueData(ctx context.Context) (*PrimeLeagueResponse, error
 	if err != nil {
 		return nil, err
 	}
-	bearer := fmt.Sprintf("Bearer %s", c.token)
-	req.Header.Set("Authorization", bearer)
+	req.Header.Set("X-Api-Key", c.token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
