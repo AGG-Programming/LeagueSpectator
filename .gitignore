@@ -8,3 +8,4 @@ dist/
 
 backend/.env
 proxy/.env
+proxy/util/*
