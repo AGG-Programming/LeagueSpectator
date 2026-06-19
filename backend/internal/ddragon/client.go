@@ -107,6 +107,8 @@ func (c *Client) GetItems(version string) (map[int]string, error) {
 }
 
 func (c *Client) GetSpells(version string) (map[string]string, error) {
+	evolvedSpells := []string{"S5", "S12", "SummonerSmiteAvatarOffensive", "SummonerSmiteAvatarDefensive", "SummonerSmiteAvatarUtility"}
+
 	resp, err := c.httpClient.Get(c.baseUrl + "/cdn/" + version + "/data/en_US/summoner.json")
 	if err != nil {
 		return nil, err
@@ -122,6 +124,10 @@ func (c *Client) GetSpells(version string) (map[string]string, error) {
 	for id, spell := range payload.Data {
 		spells[id] = fmt.Sprintf("%s/cdn/%s/img/spell/%s", c.baseUrl, version, spell.Image.Full)
 	}
+	for _, spell := range evolvedSpells {
+		spells[spell] = fmt.Sprintf("./assets/images/summs/%s.png", spell)
+	}
+
 	return spells, nil
 }
 

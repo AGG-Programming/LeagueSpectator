@@ -16,6 +16,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func withCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:63342")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Api-Key")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+
 func main() {
 	_ = godotenv.Load()
 
@@ -62,9 +76,9 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(wsHub, w, r)
 	})
-	http.HandleFunc("/pl", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/pl", withCORS(func(w http.ResponseWriter, r *http.Request) {
 		handlerClient.HandlePl(w, r)
-	})
+	}))
 
 	handlerClient.Handle()
 
