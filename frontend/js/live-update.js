@@ -2,7 +2,7 @@
 // CONFIGURATION
 // ============================================================================
 const API_URL = 'http://localhost:8080/pl';
-const INTERVAL_ONE_HOUR = 60 * 60 * 1000;
+const INTERVAL_ONE_HOUR = 60 * 60 * 10;
 const RECONNECT_DELAY = 5000; // 5 Sekunden Wartezeit für Reconnects
 
 // ============================================================================
@@ -75,12 +75,12 @@ function connectPythonScript() {
 async function fetchAndUpdateStandings() {
     try {
         const response = await fetch(API_URL);
-
         if (!response.ok) {
             throw new Error(`API-Fehler: Status ${response.status}`);
         }
 
         const data = await response.json();
+        console.log("Empfangene Prime League Daten:", data);
         updateStandingsTable(data);
     } catch (error) {
         // Schlägt die API fehl, bleibt die Tabelle einfach unverändert und das Script läuft weiter
@@ -485,7 +485,7 @@ function updateStandingsTable(data) {
         const teamAbove = teamsToRender[teamsToRender.length - 1];
         const needsGap = teamAbove ? (lastTeamPos - teamAbove.position > 1) : false;
 
-        tryAddTeam(data.lastTeam, 'enemy-team');
+        tryAddTeam(data.Last, 'enemy-team');
         
         if (needsGap) {
             teamsToRender[teamsToRender.length - 1].insertGapBefore = true;

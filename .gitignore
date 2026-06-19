@@ -8,4 +8,5 @@ dist/
 
 backend/.env
 proxy/.env
+*.exe
 proxy/util/*
