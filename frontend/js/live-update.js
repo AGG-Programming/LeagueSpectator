@@ -82,6 +82,7 @@ async function fetchAndUpdateStandings() {
         const data = await response.json();
         console.log("Empfangene Prime League Daten:", data);
         updateStandingsTable(data);
+        updateScoreTeams(data);
     } catch (error) {
         // Schlägt die API fehl, bleibt die Tabelle einfach unverändert und das Script läuft weiter
         console.error("Error loading Prime League data (Will retry in 1 hour): ", error);
@@ -569,6 +570,67 @@ function updateStandingsTable(data) {
             </td>
         `;
         tbody.appendChild(nextGameRow);
+    }
+}
+
+function updateScoreTeams(data) {
+    if (!data || !data.currentMatch) return;
+
+    const scoreDisplay = document.getElementById('score-display');
+    if (!scoreDisplay) return;
+
+    const match = data.currentMatch;
+    const op1 = match.opponent1;
+    const op2 = match.opponent2;
+
+    if (op1) {
+        const blueSide = document.querySelector('.team-side.blue-side');
+        if (blueSide) {
+            const nameEl = blueSide.querySelector('.team-name');
+            const recordEl = blueSide.querySelector('.team-record');
+            if (nameEl) nameEl.textContent = op1.tag;
+            if (recordEl) recordEl.textContent = `${op1.wins}-${op1.losses}`
+
+            const logoEl = blueSide.querySelector('.score-team-logo');
+            if (logoEl && op1.img) {
+                logoEl.src = op1.img;
+                logoEl.alt = `${op1.tag} Logo`;
+            }
+
+            const blueTicks = blueSide.querySelectorAll('.series-ticks .tick');
+            blueTicks.forEach((tick, index) => {
+                if (index < op1.matchScore) {
+                    tick.classList.add('active');
+                } else {
+                    tick.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    if (op2) {
+        const redSide = document.querySelector('.team-side.red-side');
+        if (redSide) {
+            const nameEl = redSide.querySelector('.team-name');
+            const recordEl = redSide.querySelector('.team-record');
+            if (nameEl) nameEl.textContent = op2.tag;
+            if (recordEl) recordEl.textContent = `${op2.wins}-${op2.losses}`
+
+            const logoEl = redSide.querySelector('.score-team-logo');
+            if (logoEl && op2.img) {
+                logoEl.src = op2.img;
+                logoEl.alt = `${op2.tag} Logo`;
+            }
+
+            const redTicks = redSide.querySelectorAll('.series-ticks .tick');
+            redTicks.forEach((tick, index) => {
+                if (index < op2.matchScore) {
+                    tick.classList.add('active');
+                } else {
+                    tick.classList.remove('active');
+                }
+            });
+        }
     }
 }
 
