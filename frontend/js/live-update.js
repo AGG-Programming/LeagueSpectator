@@ -485,7 +485,7 @@ function updateStandingsTable(data) {
         const teamAbove = teamsToRender[teamsToRender.length - 1];
         const needsGap = teamAbove ? (lastTeamPos - teamAbove.position > 1) : false;
 
-        tryAddTeam(data.Last, 'enemy-team');
+        tryAddTeam(data.lastTeam, 'enemy-team');
         
         if (needsGap) {
             teamsToRender[teamsToRender.length - 1].insertGapBefore = true;
@@ -538,7 +538,7 @@ function updateStandingsTable(data) {
 
     if (data.nextMatch) {
         const nextGameRow = document.createElement('tr');
-        const date = formatEpoch(data.nextMatch.match_time);
+        const date = formatEpoch(data.nextMatch.matchTime);
         nextGameRow.classList.add('next-game-row');
         nextGameRow.innerHTML = `
             <td colspan="4">
