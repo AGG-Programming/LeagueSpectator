@@ -20,6 +20,8 @@ type Match struct {
 
 type MatchResponse struct {
 	MatchID      int      `json:"match_id"`
+	MatchScore1  int      `json:"match_score_1"`
+	MatchScore2  int      `json:"match_score_2"`
 	MatchStatus  string   `json:"match_status"`
 	MatchTime    int      `json:"match_time"`
 	MatchPlayday int      `json:"match_playday"`
@@ -48,13 +50,14 @@ type PageItem struct {
 }
 
 type TeamStandings struct {
-	Target   PageItem
-	Leading  PageItem
-	Trailing PageItem
-	Last     PageItem
+	Target     PageItem
+	Leading    PageItem
+	Trailing   PageItem
+	Last       PageItem
+	CurrentOpp *PageItem
 }
 
-func (p *PrimeLeagueResponse) GetTeamStandings(targetID int) (*TeamStandings, error) {
+func (p *PrimeLeagueResponse) GetTeamStandings(targetID int, currentMatch *MatchResponse) (*TeamStandings, error) {
 	var result TeamStandings
 
 	for _, teams := range p.Ranking.Pages {
@@ -90,6 +93,20 @@ func (p *PrimeLeagueResponse) GetTeamStandings(targetID int) (*TeamStandings, er
 		if targetIdx < len(teams)-1 {
 			result.Trailing = teams[targetIdx+1]
 		}
+
+		var opponent *PageItem
+		if currentMatch != nil {
+			for _, team := range teams {
+				if team.TeamID == currentMatch.Opponent1.Team.TeamID && team.TeamID != targetID {
+					opponent = &team
+				} else if team.TeamID == currentMatch.Opponent2.Team.TeamID && team.TeamID != targetID {
+					opponent = &team
+				} else {
+					opponent = nil
+				}
+			}
+		}
+		result.CurrentOpp = opponent
 	}
 	return &result, nil
 }
