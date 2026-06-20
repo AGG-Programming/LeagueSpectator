@@ -523,24 +523,37 @@ function updateStandingsTable(data) {
     tbody.appendChild(gapRow);
     */
 
-    if (data.nextGame) {
+    function formatEpoch(epochInSeconds) {
+        const date = new Date(epochInSeconds * 1000);
+        const formatter = new Intl.DateTimeFormat('de-DE', {
+            day: 'numeric',
+            month: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'Europe/Berlin'
+        });
+        return formatter.format(date).replace(',', '');
+    }
+
+    if (data.nextMatch) {
         const nextGameRow = document.createElement('tr');
+        const date = formatEpoch(data.nextMatch.match_time);
         nextGameRow.classList.add('next-game-row');
         nextGameRow.innerHTML = `
             <td colspan="4">
                 <div class="next-game-container">
                     <span class="next-game-label">Next Game:</span>
                     <div class="next-game-team">
-                        <img src="${data.nextGame.img || 'assets/images/Logos/square_default.jpg'}" alt="Enemy Logo" class="team-logo">
-                        <span class="name-text">${data.nextGame.tag || 'TBD'}</span>
+                        <img src="${data.nextMatch.img || 'assets/images/Logos/square_default.jpg'}" alt="Enemy Logo" class="team-logo">
+                        <span class="name-text">${data.nextMatch.tag || 'TBD'}</span>
                     </div>
-                    <span class="next-game-date">${data.nextGame.date || 'open'}</span>
+                    <span class="next-game-date">${date || 'open'}</span>
                 </div>
             </td>
         `;
         tbody.appendChild(nextGameRow);
     } else {
-        const fallbackEnemy = data.lastTeam || { tag: "SüFü", img: "https://cdn1.heartbase.gg/img/themes/general/square_default.jpg" };
         const nextGameRow = document.createElement('tr');
         nextGameRow.classList.add('next-game-row');
         nextGameRow.innerHTML = `
@@ -548,10 +561,10 @@ function updateStandingsTable(data) {
                 <div class="next-game-container">
                     <span class="next-game-label">Next Game:</span>
                     <div class="next-game-team">
-                        <img src="${fallbackEnemy.img}" alt="Enemy Logo" class="team-logo">
-                        <span class="name-text">${fallbackEnemy.tag}</span>
+                        <img src="assets/images/Logos/square_default.jpg" alt="Enemy Logo" class="team-logo">
+                        <span class="name-text">TBD</span>
                     </div>
-                    <span class="next-game-date">offen</span>
+                    <span class="next-game-date">open</span>
                 </div>
             </td>
         `;
