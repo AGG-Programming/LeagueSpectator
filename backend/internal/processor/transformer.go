@@ -100,9 +100,10 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Img:      teams.Target.Img,
 		},
 		NextMatch: models.NextMatch{
-			Tag:    opponent.Team.Short,
-			Img:    opponent.Team.Img,
-			Status: nextMatch.MatchStatus,
+			Tag:       opponent.Team.Short,
+			Img:       opponent.Team.Img,
+			Status:    nextMatch.MatchStatus,
+			MatchTime: nextMatch.MatchTime,
 		},
 	}
 

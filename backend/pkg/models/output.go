@@ -95,7 +95,8 @@ type PrimeTeam struct {
 }
 
 type NextMatch struct {
-	Tag    string `json:"tag"`
-	Img    string `json:"img"`
-	Status string `json:"status"`
+	Tag       string `json:"tag"`
+	Img       string `json:"img"`
+	Status    string `json:"status"`
+	MatchTime int    `json:"matchTime"`
 }
