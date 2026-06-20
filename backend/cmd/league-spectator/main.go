@@ -13,8 +13,14 @@ import (
 	"github.com/AGG-Programming/LeagueSpectator/internal/pl"
 	"github.com/AGG-Programming/LeagueSpectator/internal/processor"
 	"github.com/AGG-Programming/LeagueSpectator/internal/websocket"
+	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
 )
+
+type Config struct {
+	Token      string `toml:"token"`
+	TargetTeam int    `toml:"target_team"`
+}
 
 func withCORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -31,15 +37,25 @@ func withCORS(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	_ = godotenv.Load()
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatal("cannot resolve executable path: ", err)
+	}
+	exeDir := filepath.Dir(exePath)
+	configPath := filepath.Join(exeDir, "config.toml")
+	var config Config
 
-	token := os.Getenv("TOKEN")
-	targetTeam := os.Getenv("TARGET_TEAM")
-	if token == "" || targetTeam == "" {
-		log.Printf("TOKEN or TARGET_TEAM is not set. Will not be able to fetch data from Prime League.")
+	if _, err = toml.DecodeFile(configPath, &config); err != nil {
+		log.Printf("Warning: Could not load config.toml (%v). Using empty defaults.", err)
+		_ = godotenv.Load()
+		config.Token = os.Getenv("TOKEN")
+		config.TargetTeam, _ = strconv.Atoi(os.Getenv("TARGET_TEAM"))
+	}
+	if config.Token == "" || config.TargetTeam == 0 {
+		log.Printf("TOKEN or TARGET_TEAM is not set correctly in config.toml. Will not be able to fetch data from Prime League.")
 	}
 
-	plClient := pl.NewClient(token)
+	plClient := pl.NewClient(config.Token)
 	ddragonClient := ddragon.NewClient()
 	leagueClient := league.NewClient()
 	wsHub := websocket.NewHub()
@@ -48,28 +64,11 @@ func main() {
 		log.Fatal("cannot create cache: ", err)
 	}
 	proc := processor.NewProcessor(cache)
-
-	var targetTeamID int
-	if targetTeam == "" {
-		targetTeamID = 0
-	} else {
-		targetTeamID, err = strconv.Atoi(targetTeam)
-		if err != nil {
-			log.Fatal("cannot parse TARGET_TEAM. Must be a number.")
-		}
-	}
-
-	handlerClient := handler.NewHandler(leagueClient, wsHub, proc, plClient, targetTeamID)
+	handlerClient := handler.NewHandler(leagueClient, wsHub, proc, plClient, config.TargetTeam)
 
 	go wsHub.Run()
 
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatal("cannot resolve executable path: ", err)
-	}
-	exeDir := filepath.Dir(exePath)
 	frontendPath := filepath.Join(exeDir, "frontend")
-
 	frontendDir := http.Dir(frontendPath)
 	http.Handle("/", http.FileServer(frontendDir))
 
