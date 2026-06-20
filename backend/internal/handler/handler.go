@@ -15,11 +15,13 @@ import (
 
 type PrimeLeague interface {
 	GetLeagueData(ctx context.Context) (*pl.PrimeLeagueResponse, error)
+	GetMatchData(ctx context.Context, matchID int) (*pl.MatchResponse, error)
+	NextMatch(matches []pl.MatchResponse) (pl.MatchResponse, error)
 }
 
 type Processor interface {
 	Transformer(data league.GameResponse) (models.DynamicGameData, error)
-	TransformPL(data pl.PrimeLeagueResponse, targetID int) (*models.PrimeLeague, error)
+	TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse) (*models.PrimeLeague, error)
 }
 
 type Handler struct {
@@ -80,13 +82,35 @@ func (h *Handler) Handle() {
 }
 
 func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
-	data, err := h.PlClient.GetLeagueData(r.Context())
+	rankData, err := h.PlClient.GetLeagueData(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resp, err := h.Processor.TransformPL(*data, h.TargetTeam)
+	var nextMatch pl.MatchResponse
+	var targetTeamMatches []pl.MatchResponse
+	for _, match := range rankData.Matches {
+		matchData, err := h.PlClient.GetMatchData(r.Context(), match.MatchID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if matchData.MatchStatus == "upcoming" {
+			if matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam {
+				targetTeamMatches = append(targetTeamMatches, *matchData)
+			}
+		}
+	}
+
+	nextMatch, err = h.PlClient.NextMatch(targetTeamMatches)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := h.Processor.TransformPL(*rankData, h.TargetTeam, nextMatch)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -77,10 +77,16 @@ func (p *Processor) getTeamScore(players []league.Player) (int, int) {
 	return blueScore, redScore
 }
 
-func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int) (*models.PrimeLeague, error) {
+func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse) (*models.PrimeLeague, error) {
 	teams, err := data.GetTeamStandings(targetID)
 	if err != nil {
 		return nil, err
+	}
+	var opponent pl.Opponent
+	if nextMatch.Opponent1.Team.TeamID == targetID {
+		opponent = nextMatch.Opponent2
+	} else {
+		opponent = nextMatch.Opponent1
 	}
 
 	output := models.PrimeLeague{
@@ -92,6 +98,11 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int) (*mod
 			Points:   teams.Target.Points,
 			Position: teams.Target.Position,
 			Img:      teams.Target.Img,
+		},
+		NextMatch: models.NextMatch{
+			Tag:    opponent.Team.Short,
+			Img:    opponent.Team.Img,
+			Status: nextMatch.MatchStatus,
 		},
 	}
 

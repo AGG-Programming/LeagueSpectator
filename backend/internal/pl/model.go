@@ -11,6 +11,30 @@ type PrimeLeagueResponse struct {
 	Ranking    struct {
 		Pages map[string][]PageItem `json:"_pages"`
 	} `json:"_ranking"`
+	Matches []Match `json:"_matches"`
+}
+
+type Match struct {
+	MatchID int `json:"match_id"`
+}
+
+type MatchResponse struct {
+	MatchID      int      `json:"match_id"`
+	MatchStatus  string   `json:"match_status"`
+	MatchTime    int      `json:"match_time"`
+	MatchPlayday int      `json:"match_playday"`
+	Opponent1    Opponent `json:"opp_1"`
+	Opponent2    Opponent `json:"opp_2"`
+}
+
+type Opponent struct {
+	Team Team `json:"_team"`
+}
+
+type Team struct {
+	TeamID int    `json:"team_id"`
+	Short  string `json:"team_short"`
+	Img    string `json:"_img"`
 }
 
 type PageItem struct {

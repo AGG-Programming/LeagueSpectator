@@ -82,6 +82,7 @@ type PrimeLeague struct {
 	LeadingTeam  *PrimeTeam `json:"leadingTeam,omitempty"`
 	TrailingTeam *PrimeTeam `json:"trailingTeam,omitempty"`
 	LastTeam     *PrimeTeam `json:"lastTeam,omitempty"`
+	NextMatch    NextMatch  `json:"nextMatch"`
 }
 
 type PrimeTeam struct {
@@ -91,4 +92,10 @@ type PrimeTeam struct {
 	Points   int    `json:"points"`
 	Position int    `json:"position"`
 	Img      string `json:"img"`
+}
+
+type NextMatch struct {
+	Tag    string `json:"tag"`
+	Img    string `json:"img"`
+	Status string `json:"status"`
 }
