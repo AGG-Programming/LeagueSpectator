@@ -21,7 +21,7 @@ type PrimeLeague interface {
 
 type Processor interface {
 	Transformer(data league.GameResponse) (models.DynamicGameData, error)
-	TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse) (*models.PrimeLeague, error)
+	TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error)
 }
 
 type Handler struct {
@@ -90,6 +90,7 @@ func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
 
 	var nextMatch pl.MatchResponse
 	var targetTeamMatches []pl.MatchResponse
+	var currentMatch *pl.MatchResponse
 	for _, match := range rankData.Matches {
 		matchData, err := h.PlClient.GetMatchData(r.Context(), match.MatchID)
 		if err != nil {
@@ -101,6 +102,10 @@ func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
 			if matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam {
 				targetTeamMatches = append(targetTeamMatches, *matchData)
 			}
+		} else if matchData.MatchStatus != "finished" {
+			if matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam {
+				currentMatch = matchData
+			}
 		}
 	}
 
@@ -110,7 +115,7 @@ func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.Processor.TransformPL(*rankData, h.TargetTeam, nextMatch)
+	resp, err := h.Processor.TransformPL(*rankData, h.TargetTeam, nextMatch, currentMatch)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

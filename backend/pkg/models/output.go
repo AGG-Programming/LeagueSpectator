@@ -77,21 +77,23 @@ type Rune struct {
 }
 
 type PrimeLeague struct {
-	GroupTitle   string     `json:"groupTitle"`
-	TargetTeam   PrimeTeam  `json:"targetTeam"`
-	LeadingTeam  *PrimeTeam `json:"leadingTeam,omitempty"`
-	TrailingTeam *PrimeTeam `json:"trailingTeam,omitempty"`
-	LastTeam     *PrimeTeam `json:"lastTeam,omitempty"`
-	NextMatch    NextMatch  `json:"nextMatch"`
+	GroupTitle   string        `json:"groupTitle"`
+	TargetTeam   PrimeTeam     `json:"targetTeam"`
+	LeadingTeam  *PrimeTeam    `json:"leadingTeam,omitempty"`
+	TrailingTeam *PrimeTeam    `json:"trailingTeam,omitempty"`
+	LastTeam     *PrimeTeam    `json:"lastTeam,omitempty"`
+	NextMatch    NextMatch     `json:"nextMatch"`
+	CurrentMatch *CurrentMatch `json:"currentMatch,omitempty"`
 }
 
 type PrimeTeam struct {
-	Tag      string `json:"tag"`
-	Wins     int    `json:"wins"`
-	Losses   int    `json:"losses"`
-	Points   int    `json:"points"`
-	Position int    `json:"position"`
-	Img      string `json:"img"`
+	Tag        string `json:"tag"`
+	Wins       int    `json:"wins"`
+	Losses     int    `json:"losses"`
+	Points     *int   `json:"points,omitempty"`
+	Position   *int   `json:"position,omitempty"`
+	Img        string `json:"img"`
+	MatchScore *int   `json:"matchScore,omitempty"`
 }
 
 type NextMatch struct {
@@ -99,4 +101,9 @@ type NextMatch struct {
 	Img       string `json:"img"`
 	Status    string `json:"status"`
 	MatchTime int    `json:"matchTime"`
+}
+
+type CurrentMatch struct {
+	Opponent1 PrimeTeam `json:"opponent1"`
+	Opponent2 PrimeTeam `json:"opponent2"`
 }

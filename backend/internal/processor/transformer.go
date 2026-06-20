@@ -77,8 +77,8 @@ func (p *Processor) getTeamScore(players []league.Player) (int, int) {
 	return blueScore, redScore
 }
 
-func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse) (*models.PrimeLeague, error) {
-	teams, err := data.GetTeamStandings(targetID)
+func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error) {
+	teams, err := data.GetTeamStandings(targetID, currentMatch)
 	if err != nil {
 		return nil, err
 	}
@@ -95,8 +95,8 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Tag:      teams.Target.Tag,
 			Wins:     teams.Target.Wins,
 			Losses:   teams.Target.Losses,
-			Points:   teams.Target.Points,
-			Position: teams.Target.Position,
+			Points:   &teams.Target.Points,
+			Position: &teams.Target.Position,
 			Img:      teams.Target.Img,
 		},
 		NextMatch: models.NextMatch{
@@ -112,8 +112,8 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Tag:      teams.Leading.Tag,
 			Wins:     teams.Leading.Wins,
 			Losses:   teams.Leading.Losses,
-			Points:   teams.Leading.Points,
-			Position: teams.Leading.Position,
+			Points:   &teams.Leading.Points,
+			Position: &teams.Leading.Position,
 			Img:      teams.Leading.Img,
 		}
 	}
@@ -123,8 +123,8 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Tag:      teams.Trailing.Tag,
 			Wins:     teams.Trailing.Wins,
 			Losses:   teams.Trailing.Losses,
-			Points:   teams.Trailing.Points,
-			Position: teams.Trailing.Position,
+			Points:   &teams.Trailing.Points,
+			Position: &teams.Trailing.Position,
 			Img:      teams.Trailing.Img,
 		}
 	}
@@ -134,9 +134,38 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Tag:      teams.Last.Tag,
 			Wins:     teams.Last.Wins,
 			Losses:   teams.Last.Losses,
-			Points:   teams.Last.Points,
-			Position: teams.Last.Position,
+			Points:   &teams.Last.Points,
+			Position: &teams.Last.Position,
 			Img:      teams.Last.Img,
+		}
+	}
+	if currentMatch != nil {
+		if currentMatch.Opponent1.Team.TeamID == targetID {
+			output.CurrentMatch.Opponent1.Wins = output.TargetTeam.Wins
+			output.CurrentMatch.Opponent1.Losses = output.TargetTeam.Losses
+			output.CurrentMatch.Opponent2.Wins = teams.CurrentOpp.Wins
+			output.CurrentMatch.Opponent2.Losses = teams.CurrentOpp.Losses
+		} else {
+			output.CurrentMatch.Opponent1.Wins = teams.CurrentOpp.Wins
+			output.CurrentMatch.Opponent1.Losses = teams.CurrentOpp.Losses
+			output.CurrentMatch.Opponent2.Wins = output.TargetTeam.Wins
+			output.CurrentMatch.Opponent2.Losses = output.TargetTeam.Losses
+		}
+		output.CurrentMatch = &models.CurrentMatch{
+			Opponent1: models.PrimeTeam{
+				Tag:        currentMatch.Opponent1.Team.Short,
+				Img:        currentMatch.Opponent1.Team.Img,
+				MatchScore: &currentMatch.MatchScore1,
+				Points:     nil,
+				Position:   nil,
+			},
+			Opponent2: models.PrimeTeam{
+				Tag:        currentMatch.Opponent2.Team.Short,
+				Img:        currentMatch.Opponent2.Team.Img,
+				MatchScore: &currentMatch.MatchScore2,
+				Points:     nil,
+				Position:   nil,
+			},
 		}
 	}
 
