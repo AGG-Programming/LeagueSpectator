@@ -2,7 +2,7 @@
 // CONFIGURATION
 // ============================================================================
 const API_URL = 'http://localhost:8080/pl';
-const INTERVAL_ONE_HOUR = 60 * 60 * 10;
+const INTERVAL_ONE_HOUR = 60 * 60 * 1000;
 const RECONNECT_DELAY = 5000; // 5 Sekunden Wartezeit für Reconnects
 
 // ============================================================================
