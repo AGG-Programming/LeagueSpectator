@@ -82,7 +82,7 @@ type PrimeLeague struct {
 	LeadingTeam  *PrimeTeam    `json:"leadingTeam,omitempty"`
 	TrailingTeam *PrimeTeam    `json:"trailingTeam,omitempty"`
 	LastTeam     *PrimeTeam    `json:"lastTeam,omitempty"`
-	NextMatch    *NextMatch    `json:"nextMatch,omitempty"`
+	NextMatch    NextMatch     `json:"nextMatch"`
 	CurrentMatch *CurrentMatch `json:"currentMatch,omitempty"`
 }
 

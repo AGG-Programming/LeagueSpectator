@@ -77,10 +77,16 @@ func (p *Processor) getTeamScore(players []league.Player) (int, int) {
 	return blueScore, redScore
 }
 
-func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch *pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error) {
+func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error) {
 	teams, err := data.GetTeamStandings(targetID, currentMatch)
 	if err != nil {
 		return nil, err
+	}
+	var opponent pl.Opponent
+	if nextMatch.Opponent1.Team.TeamID == targetID {
+		opponent = nextMatch.Opponent2
+	} else {
+		opponent = nextMatch.Opponent1
 	}
 
 	output := models.PrimeLeague{
@@ -93,22 +99,12 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Position: &teams.Target.Position,
 			Img:      teams.Target.Img,
 		},
-	}
-
-	if nextMatch != nil {
-		var opponent pl.Opponent
-		if nextMatch.Opponent1.Team.TeamID == targetID {
-			opponent = nextMatch.Opponent2
-		} else {
-			opponent = nextMatch.Opponent1
-		}
-
-		output.NextMatch = &models.NextMatch{
+		NextMatch: models.NextMatch{
 			Tag:       opponent.Team.Short,
 			Img:       opponent.Team.Img,
 			Status:    nextMatch.MatchStatus,
 			MatchTime: nextMatch.MatchTime,
-		}
+		},
 	}
 
 	if teams.Leading.TeamID != 0 {
@@ -143,9 +139,19 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 			Img:      teams.Last.Img,
 		}
 	}
-
 	if currentMatch != nil {
-		current := &models.CurrentMatch{
+		if currentMatch.Opponent1.Team.TeamID == targetID {
+			output.CurrentMatch.Opponent1.Wins = output.TargetTeam.Wins
+			output.CurrentMatch.Opponent1.Losses = output.TargetTeam.Losses
+			output.CurrentMatch.Opponent2.Wins = teams.CurrentOpp.Wins
+			output.CurrentMatch.Opponent2.Losses = teams.CurrentOpp.Losses
+		} else {
+			output.CurrentMatch.Opponent1.Wins = teams.CurrentOpp.Wins
+			output.CurrentMatch.Opponent1.Losses = teams.CurrentOpp.Losses
+			output.CurrentMatch.Opponent2.Wins = output.TargetTeam.Wins
+			output.CurrentMatch.Opponent2.Losses = output.TargetTeam.Losses
+		}
+		output.CurrentMatch = &models.CurrentMatch{
 			Opponent1: models.PrimeTeam{
 				Tag:        currentMatch.Opponent1.Team.Short,
 				Img:        currentMatch.Opponent1.Team.Img,
@@ -161,24 +167,6 @@ func (p *Processor) TransformPL(data pl.PrimeLeagueResponse, targetID int, nextM
 				Position:   nil,
 			},
 		}
-
-		if currentMatch.Opponent1.Team.TeamID == targetID {
-			current.Opponent1.Wins = output.TargetTeam.Wins
-			current.Opponent1.Losses = output.TargetTeam.Losses
-			if teams.CurrentOpp != nil {
-				current.Opponent2.Wins = teams.CurrentOpp.Wins
-				current.Opponent2.Losses = teams.CurrentOpp.Losses
-			}
-		} else {
-			if teams.CurrentOpp != nil {
-				current.Opponent1.Wins = teams.CurrentOpp.Wins
-				current.Opponent1.Losses = teams.CurrentOpp.Losses
-			}
-			current.Opponent2.Wins = output.TargetTeam.Wins
-			current.Opponent2.Losses = output.TargetTeam.Losses
-		}
-
-		output.CurrentMatch = current
 	}
 
 	return &output, nil
