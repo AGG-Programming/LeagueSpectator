@@ -1,11 +1,8 @@
 package pl
 
-import (
-	"fmt"
-	"sort"
-)
+import "sort"
 
-func (c *Client) NextMatch(matches []MatchResponse) (MatchResponse, error) {
+func (c *Client) NextMatch(matches []MatchResponse) *MatchResponse {
 	sort.Slice(matches, func(i, j int) bool {
 		if matches[i].MatchTime == matches[j].MatchTime {
 			return matches[i].MatchPlayday < matches[j].MatchPlayday
@@ -13,7 +10,7 @@ func (c *Client) NextMatch(matches []MatchResponse) (MatchResponse, error) {
 		return matches[i].MatchTime < matches[j].MatchTime
 	})
 	if len(matches) == 0 {
-		return MatchResponse{}, fmt.Errorf("no matches available")
+		return nil
 	}
-	return matches[0], nil
+	return &matches[0]
 }

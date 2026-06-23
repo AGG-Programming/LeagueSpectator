@@ -16,12 +16,12 @@ import (
 type PrimeLeague interface {
 	GetLeagueData(ctx context.Context) (*pl.PrimeLeagueResponse, error)
 	GetMatchData(ctx context.Context, matchID int) (*pl.MatchResponse, error)
-	NextMatch(matches []pl.MatchResponse) (pl.MatchResponse, error)
+	NextMatch(matches []pl.MatchResponse) *pl.MatchResponse
 }
 
 type Processor interface {
 	Transformer(data league.GameResponse) (models.DynamicGameData, error)
-	TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error)
+	TransformPL(data pl.PrimeLeagueResponse, targetID int, nextMatch *pl.MatchResponse, currentMatch *pl.MatchResponse) (*models.PrimeLeague, error)
 }
 
 type Handler struct {
@@ -88,7 +88,8 @@ func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var nextMatch pl.MatchResponse
+	now := time.Now().Unix()
+	var nextMatch *pl.MatchResponse
 	var targetTeamMatches []pl.MatchResponse
 	var currentMatch *pl.MatchResponse
 	for _, match := range rankData.Matches {
@@ -98,22 +99,20 @@ func (h *Handler) HandlePl(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if matchData.MatchStatus == "upcoming" {
-			if matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam {
-				targetTeamMatches = append(targetTeamMatches, *matchData)
-			}
-		} else if matchData.MatchStatus != "finished" {
-			if matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam {
-				currentMatch = matchData
-			}
+		isTargetTeam := matchData.Opponent1.Team.TeamID == h.TargetTeam || matchData.Opponent2.Team.TeamID == h.TargetTeam
+		if !isTargetTeam || matchData.MatchStatus == "finished" || matchData.MatchStatus == "defwin" {
+			continue
 		}
+
+		isStarted := int64(matchData.MatchTime) <= now
+		if matchData.MatchStatus == "upcoming" && !isStarted {
+			targetTeamMatches = append(targetTeamMatches, *matchData)
+			continue
+		}
+		currentMatch = matchData
 	}
 
-	nextMatch, err = h.PlClient.NextMatch(targetTeamMatches)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	nextMatch = h.PlClient.NextMatch(targetTeamMatches)
 
 	resp, err := h.Processor.TransformPL(*rankData, h.TargetTeam, nextMatch, currentMatch)
 	if err != nil {
