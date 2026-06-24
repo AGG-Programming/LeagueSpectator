@@ -10,6 +10,7 @@ League Spectator is a OBS overlay tool build for AGG Prime League Games. It curl
 Click the [Releases](https://github.com/AGG-Programming/LeagueSpectator/releases) tab at the top to download the latest version.
 
 Run the executable and create a new browser source in OBS. Set the URL to `http://localhost:8080/` and you're good to go!
+The backend now auto-starts the bundled display analyzer (`displayAnalyzer.exe` or `displayAnalyzer/main.py`) so only one executable has to be started.
 If you now load into a game the overlay will update automatically.
 
 ## Disclaimer
