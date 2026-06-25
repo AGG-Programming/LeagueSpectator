@@ -3,19 +3,16 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"runtime"
 	"strconv"
-	"strings"
 	"syscall"
 	"time"
 
+	config2 "github.com/AGG-Programming/LeagueSpectator/config"
 	"github.com/AGG-Programming/LeagueSpectator/internal/ddragon"
 	"github.com/AGG-Programming/LeagueSpectator/internal/handler"
 	"github.com/AGG-Programming/LeagueSpectator/internal/league"
@@ -31,11 +28,6 @@ type Config struct {
 	TargetTeam int    `toml:"target_team"`
 }
 
-type analyzerStart struct {
-	cmd *exec.Cmd
-	via string
-}
-
 func withCORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:63342")
@@ -47,141 +39,6 @@ func withCORS(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		next.ServeHTTP(w, r)
-	}
-}
-
-func existingFile(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func uniqueDirs(paths ...string) []string {
-	seen := map[string]struct{}{}
-	out := make([]string, 0, len(paths))
-	for _, p := range paths {
-		if strings.TrimSpace(p) == "" {
-			continue
-		}
-		clean := filepath.Clean(p)
-		if _, ok := seen[clean]; ok {
-			continue
-		}
-		seen[clean] = struct{}{}
-		out = append(out, clean)
-	}
-	return out
-}
-
-func startDisplayAnalyzer(exeDir string) (*analyzerStart, error) {
-	cwd, _ := os.Getwd()
-	searchDirs := uniqueDirs(
-		exeDir,
-		cwd,
-		filepath.Dir(cwd),
-		filepath.Join(exeDir, ".."),
-	)
-
-	binaryNames := []string{"displayAnalyzer.exe", "displayAnalyzer"}
-	for _, dir := range searchDirs {
-		for _, name := range binaryNames {
-			direct := filepath.Join(dir, name)
-			nested := filepath.Join(dir, "displayAnalyzer", "dist", name)
-			for _, candidate := range []string{direct, nested} {
-				if !existingFile(candidate) {
-					continue
-				}
-				cmd := exec.Command(candidate)
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				if err := cmd.Start(); err != nil {
-					log.Printf("Analyzer candidate %q failed to start: %v", candidate, err)
-					continue
-				}
-				go func() {
-					if err := cmd.Wait(); err != nil {
-						log.Printf("Display analyzer exited with error: %v", err)
-						return
-					}
-					log.Printf("Display analyzer stopped.")
-				}()
-				return &analyzerStart{
-					cmd: cmd,
-					via: candidate,
-				}, nil
-			}
-		}
-	}
-
-	pyScriptCandidates := make([]string, 0, len(searchDirs))
-	for _, dir := range searchDirs {
-		pyScriptCandidates = append(pyScriptCandidates, filepath.Join(dir, "displayAnalyzer", "main.py"))
-	}
-
-	pythonCommands := [][]string{
-		{"python3"},
-		{"python"},
-	}
-	if runtime.GOOS == "windows" {
-		pythonCommands = append([][]string{{"py", "-3"}}, pythonCommands...)
-	}
-
-	for _, script := range pyScriptCandidates {
-		if !existingFile(script) {
-			continue
-		}
-		for _, baseCmd := range pythonCommands {
-			if _, err := exec.LookPath(baseCmd[0]); err != nil {
-				continue
-			}
-			args := append(baseCmd[1:], script)
-			cmd := exec.Command(baseCmd[0], args...)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Dir = filepath.Dir(script)
-			if err := cmd.Start(); err != nil {
-				return nil, fmt.Errorf("failed starting python analyzer via %q %q: %w", baseCmd[0], script, err)
-			}
-			go func() {
-				if err := cmd.Wait(); err != nil {
-					log.Printf("Display analyzer exited with error: %v", err)
-					return
-				}
-				log.Printf("Display analyzer stopped.")
-			}()
-			return &analyzerStart{
-				cmd: cmd,
-				via: fmt.Sprintf("%s %s", baseCmd[0], script),
-			}, nil
-		}
-	}
-
-	return nil, errors.New("could not find analyzer binary or python script")
-}
-
-func stopDisplayAnalyzer(started *analyzerStart) {
-	if started == nil || started.cmd == nil || started.cmd.Process == nil {
-		return
-	}
-	if runtime.GOOS == "windows" {
-		if err := started.cmd.Process.Kill(); err != nil && !errors.Is(err, os.ErrProcessDone) {
-			log.Printf("Could not stop display analyzer: %v", err)
-		}
-		return
-	}
-
-	if err := started.cmd.Process.Signal(os.Interrupt); err != nil && !errors.Is(err, os.ErrProcessDone) {
-		if killErr := started.cmd.Process.Kill(); killErr != nil && !errors.Is(killErr, os.ErrProcessDone) {
-			log.Printf("Could not stop display analyzer: %v", killErr)
-		}
-		return
-	}
-
-	time.Sleep(750 * time.Millisecond)
-	if err := started.cmd.Process.Kill(); err != nil && !errors.Is(err, os.ErrProcessDone) {
-		log.Printf("Could not force-stop display analyzer: %v", err)
 	}
 }
 
@@ -204,12 +61,12 @@ func main() {
 		log.Printf("TOKEN or TARGET_TEAM is not set correctly in config.toml. Will not be able to fetch data from Prime League.")
 	}
 
-	analyzer, err := startDisplayAnalyzer(exeDir)
+	analyzer, err := config2.StartDisplayAnalyzer(exeDir)
 	if err != nil {
 		log.Printf("Warning: could not auto-start display analyzer: %v", err)
 	} else {
-		log.Printf("Started display analyzer via %s", analyzer.via)
-		defer stopDisplayAnalyzer(analyzer)
+		log.Printf("Started display analyzer via %s", analyzer.Via)
+		defer config2.StopDisplayAnalyzer(analyzer)
 	}
 
 	plClient := pl.NewClient(config.Token)
