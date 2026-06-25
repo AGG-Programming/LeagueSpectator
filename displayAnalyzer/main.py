@@ -211,7 +211,7 @@ async def broadcastFromQueue():
                         await client.send(json_message)
                     except Exception as send_error:
                         print(f"Error while sending to client: {send_error}")
-                print(f"Data successfully sent to {len(current_clients)} client(s).")
+                #print(f"Data successfully sent to {len(current_clients)} client(s).")
         except queue.Empty:
             pass
         await asyncio.sleep(0.01)
@@ -224,7 +224,7 @@ def startWebsocketServer():
     asyncio.run(main())
 
 if __name__ == "__main__":
-    print("Script active. Scanning MONITOR 2 (Index 3 in MSS) for League of Legends...")
+    print("Script active. Scanning MAIN MONITOR (Index 1 in MSS) for League of Legends...")
     
     server_thread = threading.Thread(target=startWebsocketServer, daemon=True)
     server_thread.start()
@@ -235,12 +235,12 @@ if __name__ == "__main__":
         start_time = time.time()
         
         # 1. Einziger Screenshot der Schleife
-        current_frame = captureFullMonitor(monitor_index=3)
+        current_frame = captureFullMonitor(monitor_index=1)
         
         # 2. Daten direkt im RAM-Verfahren analysieren
         data = getData(current_frame)
         
-        print(f"Analyse-Dauer (Full Frame-RAM Methode): {time.time() - start_time:.2f} Sekunden")
+        #print(f"Analyse-Dauer (Full Frame-RAM Methode): {time.time() - start_time:.2f} Sekunden")
         
         if CONNECTED_CLIENTS:
             DATA_QUEUE.put(data)
